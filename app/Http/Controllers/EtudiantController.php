@@ -1,0 +1,130 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Etudiant;
+use App\Models\Utilisateur;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+
+class EtudiantController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = Etudiant::with(['utilisateur', 'classe']);
+        
+        if ($request->search) {
+            $query->whereHas('utilisateur', function ($q) use ($request) {
+                $q->where('nom', 'like', "%{$request->search}%")
+                  ->orWhere('prenom', 'like', "%{$request->search}%")
+                  ->orWhere('email', 'like', "%{$request->search}%");
+            })->orWhere('matricule', 'like', "%{$request->search}%");
+        }
+        
+        if ($request->classe_id) {
+            $query->where('classe_id', $request->classe_id);
+        }
+        
+        $etudiants = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        return view('etudiants.index', compact('etudiants'));
+    }
+
+    public function create()
+    {
+        return view('etudiants.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:utilisateurs,email',
+            'password' => 'required|string|min:8|confirmed',
+            'matricule' => 'required|string|unique:etudiants,matricule',
+            'date_naissance' => 'required|date',
+            'lieu_naissance' => 'required|string|max:255',
+            'sexe' => 'required|in:M,F',
+            'nom_arabe' => 'nullable|string|max:255',
+            'prenom_arabe' => 'nullable|string|max:255',
+        ]);
+
+        // Create user first
+        $utilisateur = Utilisateur::create([
+            'nom' => $request->nom,
+            'prenom' => $request->prenom,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Create student
+        Etudiant::create([
+            'utilisateur_id' => $utilisateur->id,
+            'matricule' => $request->matricule,
+            'date_naissance' => $request->date_naissance,
+            'lieu_naissance' => $request->lieu_naissance,
+            'sexe' => $request->sexe,
+            'nom_arabe' => $request->nom_arabe,
+            'prenom_arabe' => $request->prenom_arabe,
+        ]);
+
+        return redirect()->route('etudiants.index')->with('success', 'Étudiant créé avec succès');
+    }
+
+    public function show(Etudiant $etudiant)
+    {
+        $etudiant->load(['utilisateur', 'classe', 'notes.evaluation.matiere']);
+        return view('etudiants.show', compact('etudiant'));
+    }
+
+    public function edit(Etudiant $etudiant)
+    {
+        $etudiant->load('utilisateur');
+        return view('etudiants.edit', compact('etudiant'));
+    }
+
+    public function update(Request $request, Etudiant $etudiant)
+    {
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('utilisateurs')->ignore($etudiant->utilisateur_id)],
+            'matricule' => ['required', 'string', Rule::unique('etudiants')->ignore($etudiant->id)],
+            'date_naissance' => 'required|date',
+            'lieu_naissance' => 'required|string|max:255',
+            'sexe' => 'required|in:M,F',
+            'nom_arabe' => 'nullable|string|max:255',
+            'prenom_arabe' => 'nullable|string|max:255',
+            'classe_id' => 'nullable|exists:classes,id',
+        ]);
+
+        $etudiant->utilisateur->update([
+            'nom' => $request->nom,
+            'prenom' => $request->prenom,
+            'email' => $request->email,
+        ]);
+
+        $etudiant->update([
+            'matricule' => $request->matricule,
+            'date_naissance' => $request->date_naissance,
+            'lieu_naissance' => $request->lieu_naissance,
+            'sexe' => $request->sexe,
+            'nom_arabe' => $request->nom_arabe,
+            'prenom_arabe' => $request->prenom_arabe,
+            'classe_id' => $request->classe_id,
+        ]);
+
+        return redirect()->route('etudiants.index')->with('success', 'Étudiant mis à jour avec succès');
+    }
+
+    public function destroy(Etudiant $etudiant)
+    {
+        $utilisateur = $etudiant->utilisateur;
+        $etudiant->delete();
+        $utilisateur->delete();
+        
+        return redirect()->route('etudiants.index')->with('success', 'Étudiant supprimé avec succès');
+    }
+}
