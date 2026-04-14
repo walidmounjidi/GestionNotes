@@ -13,7 +13,7 @@
                     <div class="flex justify-between items-start mb-6">
                         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Informations personnelles</h3>
                         <div class="flex gap-2">
-                            <x-secondary-button onclick="window.location='{{ route('etudents.edit', $etudiant->id) }}'">
+                            <x-secondary-button onclick="window.location='{{ route('etudiants.edit', $etudiant->id) }}'">
                                 {{ __('Modifier') }}
                             </x-secondary-button>
                             <x-secondary-button onclick="window.location='{{ route('etudiants.index') }}'">
