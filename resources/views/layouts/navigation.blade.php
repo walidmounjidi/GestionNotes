@@ -15,8 +15,14 @@
 
                 <div class="hidden space-x-1 sm:ms-8 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="!text-white/80 hover:!text-white hover:bg-white/10">
-                        <svg class="w-4 h-4 me-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2 01-2 2 0v2a2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                        <svg class="w-4 h-4 me-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
                         {{ __('Dashboard') }}
+                    </x-nav-link>
+
+                    @if(Auth::user()->hasRole(['admin', 'manager']))
+                    <x-nav-link :href="route('specializations.index')" :active="request()->routeIs('specializations.*')" class="!text-white/80 hover:!text-white hover:bg-white/10">
+                        <svg class="w-4 h-4 me-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        {{ __('Spécialisations') }}
                     </x-nav-link>
                     <x-nav-link :href="route('etudiants.index')" :active="request()->routeIs('etudiants.*')" class="!text-white/80 hover:!text-white hover:bg-white/10">
                         <svg class="w-4 h-4 me-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
@@ -34,10 +40,35 @@
                         <svg class="w-4 h-4 me-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                         {{ __('Évaluations') }}
                     </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->isTeacher())
+                    <x-nav-link :href="route('teacher.dashboard')" :active="request()->routeIs('teacher.*')" class="!text-white/80 hover:!text-white hover:bg-white/10">
+                        <svg class="w-4 h-4 me-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        {{ __('Mes Classes') }}
+                    </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->isStudent())
+                    <x-nav-link :href="route('student.dashboard')" :active="request()->routeIs('student.*')" class="!text-white/80 hover:!text-white hover:bg-white/10">
+                        <svg class="w-4 h-4 me-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        {{ __('Mes Notes') }}
+                    </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->hasRole(['admin', 'manager', 'teacher']))
                     <x-nav-link :href="route('notes.index')" :active="request()->routeIs('notes.*')" class="!text-white/80 hover:!text-white hover:bg-white/10">
                         <svg class="w-4 h-4 me-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         {{ __('Notes') }}
                     </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->isAdmin())
+                    <x-nav-link :href="route('utilisateurs.index')" :active="request()->routeIs('utilisateurs.*')" class="!text-white/80 hover:!text-white hover:bg-white/10">
+                        <svg class="w-4 h-4 me-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        {{ __('Utilisateurs') }}
+                    </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -91,6 +122,8 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="!text-white/80 hover:!text-white hover:!bg-white/10">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @if(Auth::user()->hasRole(['admin', 'manager']))
             <x-responsive-nav-link :href="route('etudiants.index')" :active="request()->routeIs('etudiants.*')" class="!text-white/80 hover:!text-white hover:!bg-white/10">
                 {{ __('Étudiants') }}
             </x-responsive-nav-link>
@@ -103,9 +136,19 @@
             <x-responsive-nav-link :href="route('evaluations.index')" :active="request()->routeIs('evaluations.*')" class="!text-white/80 hover:!text-white hover:!bg-white/10">
                 {{ __('Évaluations') }}
             </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->hasRole(['admin', 'manager', 'teacher']))
             <x-responsive-nav-link :href="route('notes.index')" :active="request()->routeIs('notes.*')" class="!text-white/80 hover:!text-white hover:!bg-white/10">
                 {{ __('Notes') }}
             </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->isAdmin())
+            <x-responsive-nav-link :href="route('utilisateurs.index')" :active="request()->routeIs('utilisateurs.*')" class="!text-white/80 hover:!text-white hover:!bg-white/10">
+                {{ __('Utilisateurs') }}
+            </x-responsive-nav-link>
+            @endif
         </div>
 
         <div class="pt-4 pb-1 border-t border-white/20">

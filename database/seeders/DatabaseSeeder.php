@@ -9,36 +9,76 @@ use App\Models\Matiere;
 use App\Models\Evaluation;
 use App\Models\Note;
 use App\Models\Inscription;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // Check if admin already exists
-        if (Utilisateur::where('email', 'admin@etu-note.ma')->exists()) {
-            $this->command->info('Admin user already exists, skipping...');
-            return;
-        }
-
-        // Create admin user
-        $admin = Utilisateur::create([
-            'uuid' => Str::uuid()->toString(),
-            'nom' => 'Admin',
-            'prenom' => 'Système',
-            'email' => 'admin@etu-note.ma',
-            'password' => Hash::make('password'),
-            'telephone' => '+212 6 00 00 00 00',
-            'etat' => 'actif',
-            'email_verified_at' => now(),
+        $this->call([
+            RoleSeeder::class,
+            SpecializationSeeder::class,
         ]);
 
-        // Create classes
+        $admin = Utilisateur::where('email', 'admin@etu-note.ma')->first();
+
+        if (!$admin) {
+            $admin = Utilisateur::create([
+                'uuid' => Str::uuid()->toString(),
+                'nom' => 'Admin',
+                'prenom' => 'Système',
+                'email' => 'admin@etu-note.ma',
+                'password' => Hash::make('password'),
+                'telephone' => '+212 6 00 00 00 00',
+                'etat' => 'actif',
+                'email_verified_at' => now(),
+            ]);
+        }
+
+        $adminRole = Role::where('code', 'admin')->first();
+        if ($adminRole && !$admin->hasRole('admin')) {
+            $admin->assignRole($adminRole);
+        }
+
+        $manager = Utilisateur::where('email', 'manager@etu-note.ma')->first();
+        if (!$manager) {
+            $manager = Utilisateur::create([
+                'uuid' => Str::uuid()->toString(),
+                'nom' => 'Manager',
+                'prenom' => 'Système',
+                'email' => 'manager@etu-note.ma',
+                'password' => Hash::make('password'),
+                'telephone' => '+212 6 00 00 00 01',
+                'etat' => 'actif',
+                'email_verified_at' => now(),
+            ]);
+            $managerRole = Role::where('code', 'manager')->first();
+            if ($managerRole) {
+                $manager->assignRole($managerRole);
+            }
+        }
+
+        $teacher = Utilisateur::where('email', 'teacher@etu-note.ma')->first();
+        if (!$teacher) {
+            $teacher = Utilisateur::create([
+                'uuid' => Str::uuid()->toString(),
+                'nom' => 'Professeur',
+                'prenom' => 'Système',
+                'email' => 'teacher@etu-note.ma',
+                'password' => Hash::make('password'),
+                'telephone' => '+212 6 00 00 00 02',
+                'etat' => 'actif',
+                'email_verified_at' => now(),
+            ]);
+            $teacherRole = Role::where('code', 'teacher')->first();
+            if ($teacherRole) {
+                $teacher->assignRole($teacherRole);
+            }
+        }
+
         $classes = [
             ['code' => 'L1INFO', 'libelle' => ' Licence 1 Info', 'niveau' => 'L1', 'annee_scolaire' => 2025],
             ['code' => 'L2INFO', 'libelle' => ' Licence 2 Info', 'niveau' => 'L2', 'annee_scolaire' => 2025],
@@ -48,10 +88,9 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($classes as $classe) {
-            Classe::create($classe);
+            Classe::firstOrCreate(['code' => $classe['code']], $classe);
         }
 
-        // Create subjects
         $matieres = [
             ['code' => 'ALGO', 'libelle' => 'Algorithmique', 'coefficient' => 3, 'credits' => 6],
             ['code' => 'BD', 'libelle' => 'Base de Données', 'coefficient' => 3, 'credits' => 5],
@@ -62,10 +101,9 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($matieres as $matiere) {
-            Matiere::create($matiere);
+            Matiere::firstOrCreate(['code' => $matiere['code']], $matiere);
         }
 
-        // Create some students
         $students = [
             ['nom' => 'Alami', 'prenom' => 'Youssef', 'email' => 'alami@etu-note.ma', 'date_naissance' => '2004-05-15', 'lieu_naissance' => 'Rabat', 'sexe' => 'M'],
             ['nom' => 'Benali', 'prenom' => 'Fatima', 'email' => 'benali@etu-note.ma', 'date_naissance' => '2004-03-22', 'lieu_naissance' => 'Casablanca', 'sexe' => 'F'],
@@ -75,37 +113,46 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($students as $student) {
-            $utilisateur = Utilisateur::create([
-                'uuid' => Str::uuid()->toString(),
-                'nom' => $student['nom'],
-                'prenom' => $student['prenom'],
-                'email' => $student['email'],
-                'password' => Hash::make('password'),
-                'telephone' => '+212 6 ' . rand(10, 99) . ' ' . rand(10, 99) . ' ' . rand(10, 99) . ' ' . rand(10, 99),
-                'etat' => 'actif',
-                'email_verified_at' => now(),
-            ]);
+            $utilisateur = Utilisateur::where('email', $student['email'])->first();
+            if (!$utilisateur) {
+                $utilisateur = Utilisateur::create([
+                    'uuid' => Str::uuid()->toString(),
+                    'nom' => $student['nom'],
+                    'prenom' => $student['prenom'],
+                    'email' => $student['email'],
+                    'password' => Hash::make('password'),
+                    'telephone' => '+212 6 ' . rand(10, 99) . ' ' . rand(10, 99) . ' ' . rand(10, 99) . ' ' . rand(10, 99),
+                    'etat' => 'actif',
+                    'email_verified_at' => now(),
+                ]);
+            }
 
-            $etudiant = Etudiant::create([
-                'utilisateur_id' => $utilisateur->id,
-                'matricule' => 'MAT' . strtoupper(Str::random(6)),
-                'date_naissance' => $student['date_naissance'],
-                'lieu_naissance' => $student['lieu_naissance'],
-                'sexe' => $student['sexe'],
-                'classe_id' => rand(1, 3),
-            ]);
+            $etudiant = Etudiant::where('utilisateur_id', $utilisateur->id)->first();
+            if (!$etudiant) {
+                $etudiant = Etudiant::create([
+                    'utilisateur_id' => $utilisateur->id,
+                    'matricule' => 'MAT' . strtoupper(Str::random(6)),
+                    'date_naissance' => $student['date_naissance'],
+                    'lieu_naissance' => $student['lieu_naissance'],
+                    'sexe' => $student['sexe'],
+                    'classe_id' => rand(1, 3),
+                ]);
 
-            // Create inscription
-            Inscription::create([
-                'etudiant_id' => $etudiant->id,
-                'classe_id' => $etudiant->classe_id,
-                'annee_scolaire' => 2025,
-                'statut' => 'active',
-                'date_inscription' => now(),
-            ]);
+                $studentRole = Role::where('code', 'student')->first();
+                if ($studentRole) {
+                    $utilisateur->assignRole($studentRole);
+                }
+
+                Inscription::create([
+                    'etudiant_id' => $etudiant->id,
+                    'classe_id' => $etudiant->classe_id,
+                    'annee_scolaire' => 2025,
+                    'statut' => 'active',
+                    'date_inscription' => now(),
+                ]);
+            }
         }
 
-        // Create some evaluations
         $evaluations = [
             ['matiere_id' => 1, 'classe_id' => 1, 'type' => 'examen', 'description' => 'Examen midterm algo', 'date_evaluation' => '2026-01-15', 'note_max' => 20, 'coefficient' => 1.5],
             ['matiere_id' => 2, 'classe_id' => 1, 'type' => 'devoir', 'description' => 'Devoir SQL', 'date_evaluation' => '2026-01-20', 'note_max' => 20, 'coefficient' => 1],
@@ -115,21 +162,22 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($evaluations as $evaluation) {
-            Evaluation::create($evaluation);
+            Evaluation::firstOrCreate(
+                ['matiere_id' => $evaluation['matiere_id'], 'classe_id' => $evaluation['classe_id'], 'type' => $evaluation['type']],
+                $evaluation
+            );
         }
 
-        // Create some notes
         $etudiants = Etudiant::all();
         $evals = Evaluation::all();
 
         foreach ($etudiants as $etudiant) {
             foreach ($evals as $eval) {
                 if ($etudiant->classe_id == $eval->classe_id) {
-                    Note::create([
-                        'etudiant_id' => $etudiant->id,
-                        'evaluation_id' => $eval->id,
-                        'note' => rand(8, 18) + rand(0, 99) / 100,
-                    ]);
+                    Note::firstOrCreate(
+                        ['etudiant_id' => $etudiant->id, 'evaluation_id' => $eval->id],
+                        ['note' => rand(8, 18) + rand(0, 99) / 100]
+                    );
                 }
             }
         }

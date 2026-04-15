@@ -28,7 +28,6 @@ class Etudiant extends Model
         'date_naissance' => 'date',
     ];
 
-    // Relations
     public function utilisateur(): BelongsTo
     {
         return $this->belongsTo(Utilisateur::class);
@@ -49,9 +48,13 @@ class Etudiant extends Model
         return $this->hasMany(Inscription::class);
     }
 
-    // Accessor for full name
     public function getFullNameAttribute(): string
     {
         return $this->utilisateur->nom . ' ' . $this->utilisateur->prenom;
+    }
+
+    public function getMoyenneAttribute(): ?float
+    {
+        return $this->notes->avg('note');
     }
 }

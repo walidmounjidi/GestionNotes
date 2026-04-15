@@ -2,41 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Etudiant;
-use App\Models\Matiere;
-use App\Models\Classe;
-use App\Models\Note;
-use App\Models\Evaluation;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Etudiant;
+use App\Models\Classe;
+use App\Models\Matiere;
+use App\Models\Evaluation;
+use App\Models\Note;
 
 class DashboardController extends Controller
 {
-    public function __invoke()
+    public function __invoke(Request $request)
     {
+        $user = Auth::user();
+
         $stats = [
             'total_etudiants' => Etudiant::count(),
-            'total_matieres' => Matiere::count(),
             'total_classes' => Classe::count(),
+            'total_matieres' => Matiere::count(),
             'total_evaluations' => Evaluation::count(),
+            'total_notes' => Note::count(),
         ];
 
-        // Get recent grades
         $recent_notes = Note::with(['etudiant.utilisateur', 'evaluation.matiere'])
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
 
-        // Calculate average grade
         $moyenne_generale = Note::avg('note');
-        
-        // Get grades by evaluation type
-        $notes_par_type = Note::with('evaluation')
-            ->get()
-            ->groupBy('evaluation.type')
-            ->map(function ($notes) {
-                return $notes->avg('note');
-            });
 
-        return view('dashboard', compact('stats', 'recent_notes', 'moyenne_generale', 'notes_par_type'));
+        return view('dashboard', compact('stats', 'recent_notes', 'moyenne_generale'));
     }
 }
