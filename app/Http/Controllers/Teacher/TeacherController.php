@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use App\Models\Utilisateur;
-use App\Models\Specialization;
 use App\Models\Classe;
+use App\Models\Specialization;
+use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,16 +51,18 @@ class TeacherController extends Controller
         $request->validate([
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'email' => 'required|email|unique:utilisateurs,email',
             'specializations' => 'array',
             'classes' => 'array',
         ]);
 
+        $email = Utilisateur::generateTeacherEmail();
+        $password = Utilisateur::generateSecurePassword();
+
         $teacher = Utilisateur::create([
             'nom' => $request->nom,
             'prenom' => $request->prenom,
-            'email' => $request->email,
-            'password' => bcrypt('password'),
+            'email' => $email,
+            'password' => bcrypt($password),
             'etat' => 'actif',
             'email_verified_at' => now(),
         ]);
@@ -78,12 +80,19 @@ class TeacherController extends Controller
             $teacher->classes()->sync($request->classes);
         }
 
-        return redirect()->route('teacher.index')->with('success', 'Professeur créé avec succès.');
+        return redirect()->route('teacher.index')->with([
+            'success' => 'Professeur créé avec succès.',
+            'credentials' => [
+                'email' => $email,
+                'password' => $password,
+            ],
+        ]);
     }
 
     public function show(Utilisateur $teacher)
     {
         $teacher->load(['specializations', 'classes.etudiants']);
+
         return view('teacher.show', compact('teacher'));
     }
 
@@ -101,12 +110,11 @@ class TeacherController extends Controller
         $request->validate([
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'email' => 'required|email|unique:utilisateurs,email,' . $teacher->id,
             'specializations' => 'array',
             'classes' => 'array',
         ]);
 
-        $teacher->update($request->only(['nom', 'prenom', 'email']));
+        $teacher->update($request->only(['nom', 'prenom']));
 
         if ($request->has('specializations')) {
             $teacher->specializations()->sync($request->specializations);

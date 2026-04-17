@@ -31,27 +31,22 @@
                             </div>
 
                             <div>
-                                <x-input-label for="email" :value="__('Email')" />
-                                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
-                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                            </div>
-
-                            <div>
-                                <x-input-label for="password" :value="__('Mot de passe')" />
-                                <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required />
-                                <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                            </div>
-
-                            <div>
-                                <x-input-label for="password_confirmation" :value="__('Confirmer le mot de passe')" />
-                                <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required />
-                                <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                            </div>
-
-                            <div>
                                 <x-input-label for="matricule" :value="__('Matricule')" />
                                 <x-text-input id="matricule" class="block mt-1 w-full" type="text" name="matricule" :value="old('matricule')" required />
                                 <x-input-error :messages="$errors->get('matricule')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="classe_id" :value="__('Classe')" />
+                                <select id="classe_id" name="classe_id" class="block mt-1 w-full border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="">Sélectionner une classe...</option>
+                                    @foreach($classes as $classe)
+                                    <option value="{{ $classe->id }}" {{ old('classe_id') == $classe->id ? 'selected' : '' }}>
+                                        {{ $classe->libelle }} ({{ $classe->level->libelle ?? 'N/A' }})
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('classe_id')" class="mt-2" />
                             </div>
 
                             <div>
@@ -87,6 +82,13 @@
                                 <x-text-input id="prenom_arabe" class="block mt-1 w-full" type="text" name="prenom_arabe" :value="old('prenom_arabe')" />
                                 <x-input-error :messages="$errors->get('prenom_arabe')" class="mt-2" />
                             </div>
+                        </div>
+
+                        <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                            <p class="text-sm text-amber-800">
+                                <strong>Note:</strong> Un email et un mot de passe temporaire seront générés automatiquement pour cet étudiant.
+                                Les identifiants seront affichés après la création du compte.
+                            </p>
                         </div>
 
                         <div class="flex justify-end mt-8">

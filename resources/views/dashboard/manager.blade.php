@@ -53,12 +53,114 @@
                 <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-6 shadow-lg shadow-amber-500/25 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-amber-100 text-sm font-medium">Notes</p>
+                            <p class="text-amber-100 text-sm font-medium">Professeurs</p>
+                            <p class="text-3xl font-bold mt-1">{{ $stats['total_teachers'] }}</p>
+                        </div>
+                        <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-6 shadow-lg shadow-rose-500/25 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-rose-100 text-sm font-medium">Notes</p>
                             <p class="text-3xl font-bold mt-1">{{ $stats['total_notes'] }}</p>
                         </div>
                         <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                    <h3 class="font-semibold text-slate-800">Statistiques des Professeurs</h3>
+                    <span class="text-sm text-slate-500">{{ $teachers->count() }} professeurs</span>
+                </div>
+                <div class="p-0">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Professeur</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Spécialisations</th>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Étudiants</th>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Classes</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Niveaux</th>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Matières assignées</th>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                @forelse($teachers as $teacher)
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="px-4 py-3">
+                                        <div class="text-sm">
+                                            <div class="font-medium text-slate-700">{{ $teacher['name'] }}</div>
+                                            <div class="text-slate-500 text-xs">{{ $teacher['email'] }}</div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        @forelse($teacher['specializations'] as $spec)
+                                            <span class="inline-block px-2 py-0.5 text-xs bg-violet-100 text-violet-700 rounded-full mb-1">
+                                                {{ $spec }}
+                                            </span>
+                                        @empty
+                                            <span class="text-slate-400 text-xs">Aucune</span>
+                                        @endforelse
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-center">
+                                        <span class="inline-flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full font-semibold">
+                                            {{ $teacher['students_count'] }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-center font-medium text-slate-700">{{ $teacher['classes_count'] }}</td>
+                                    <td class="px-4 py-3 text-sm text-center">
+                                        @forelse($teacher['classes_by_level'] as $level => $count)
+                                            <span class="inline-block px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded-full mr-1 mb-1">
+                                                {{ $level }} ({{ $count }})
+                                            </span>
+                                        @empty
+                                            <span class="text-slate-400 text-xs">Aucune</span>
+                                        @endforelse
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-center">
+                                        @if($teacher['matieres_count'] > 0)
+                                            <span class="inline-flex items-center justify-center px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">
+                                                {{ $teacher['matieres_count'] }} matières
+                                            </span>
+                                            <details class="mt-1">
+                                                <summary class="text-xs text-indigo-600 cursor-pointer hover:text-indigo-800">Voir détails</summary>
+                                                <div class="mt-2 text-xs text-left">
+                                                    @foreach($teacher['assigned_matieres'] as $mc)
+                                                        <div class="bg-slate-50 px-2 py-1 rounded mb-1">
+                                                            <span class="font-medium">{{ $mc->matiere->libelle ?? 'N/A' }}</span>
+                                                            <span class="text-slate-500"> - {{ $mc->classe->libelle ?? 'N/A' }}</span>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </details>
+                                        @else
+                                            <span class="text-slate-400 text-xs">Aucune</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-center">
+                                        <button onclick="toggleAssignModal({{ $teacher['id'] }})" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            Assigner
+                                        </button>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="7" class="px-4 py-6 text-center text-sm text-slate-400">Aucun professeur trouvé</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -72,8 +174,8 @@
                         <table class="w-full">
                             <thead class="bg-slate-50">
                                 <tr>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Étudiant</th>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Matière</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Étudiant</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Matière</th>
                                     <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Note</th>
                                 </tr>
                             </thead>
@@ -106,8 +208,8 @@
                         <table class="w-full">
                             <thead class="bg-slate-50">
                                 <tr>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Classe</th>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Étudiants</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Classe</th>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Étudiants</th>
                                     <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Moyenne</th>
                                 </tr>
                             </thead>
@@ -115,7 +217,7 @@
                                 @forelse($notes_by_classe as $item)
                                 <tr class="hover:bg-slate-50/50 transition-colors">
                                     <td class="px-4 py-3 text-sm text-slate-700">{{ $item['classe'] }}</td>
-                                    <td class="px-4 py-3 text-sm text-slate-600">{{ $item['etudiants_count'] }}</td>
+                                    <td class="px-4 py-3 text-sm text-center text-slate-600">{{ $item['etudiants_count'] }}</td>
                                     <td class="px-4 py-3 text-sm font-bold {{ $item['moyenne'] >= 10 ? 'text-emerald-600' : 'text-red-500' }}">
                                         {{ $item['moyenne'] }}/20
                                     </td>
@@ -179,5 +281,64 @@
                 </div>
             </div>
         </div>
+
+        <!-- Subject Assignment Modal -->
+        <div id="assignModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
+                <div class="px-6 py-4 border-b border-slate-100">
+                    <h3 class="font-semibold text-slate-800">Assigner une Matière</h3>
+                </div>
+                <form id="assignForm" action="{{ route('manager.assignSubject') }}" method="POST">
+                    @csrf
+                    <input type="hidden" id="teacherId" name="teacher_id">
+                    
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Matière</label>
+                            <select name="matiere_id" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">Sélectionner une matière</option>
+                                @foreach($matieres as $matiere)
+                                <option value="{{ $matiere->id }}">{{ $matiere->libelle }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Classe</label>
+                            <select name="classe_id" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">Sélectionner une classe</option>
+                                @foreach($classes as $classe)
+                                <option value="{{ $classe->id }}">{{ $classe->libelle }} ({{ $classe->level->libelle ?? '' }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3">
+                        <button type="button" onclick="toggleAssignModal()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800">
+                            Annuler
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">
+                            Assigner
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function toggleAssignModal(teacherId = null) {
+                const modal = document.getElementById('assignModal');
+                const hiddenInput = document.getElementById('teacherId');
+                
+                if (teacherId) {
+                    hiddenInput.value = teacherId;
+                    modal.classList.remove('hidden');
+                } else {
+                    modal.classList.add('hidden');
+                    document.getElementById('assignForm').reset();
+                }
+            }
+        </script>
     </div>
 </x-app-layout>

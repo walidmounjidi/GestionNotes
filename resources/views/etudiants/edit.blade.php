@@ -28,11 +28,11 @@
                                 <x-input-error :messages="$errors->get('prenom')" class="mt-2" />
                             </div>
 
-                            <!-- Email -->
+                            <!-- Email (readonly) -->
                             <div>
                                 <x-input-label for="email" :value="__('Email')" />
-                                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $etudiant->utilisateur->email)" required />
-                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                                <x-text-input id="email" class="block mt-1 w-full bg-slate-100" type="email" name="email" :value="$etudiant->utilisateur->email" readonly />
+                                <p class="text-xs text-slate-500 mt-1">L'email ne peut pas être modifié</p>
                             </div>
 
                             <!-- Matricule -->

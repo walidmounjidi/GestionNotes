@@ -31,10 +31,15 @@
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
+            @if($user->isTeacher() || $user->isStudent())
+                <x-text-input id="email" name="email" type="email" class="mt-1 block w-full bg-slate-100" :value="$user->email" readonly />
+                <p class="text-xs text-slate-500 mt-1">{{ __('Email cannot be changed for student and teacher accounts.') }}</p>
+            @else
+                <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
+            @endif
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
+            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail() && !($user->isTeacher() || $user->isStudent()))
                 <div>
                     <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
                         {{ __('Your email address is unverified.') }}

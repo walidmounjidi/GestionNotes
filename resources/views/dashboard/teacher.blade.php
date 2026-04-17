@@ -17,11 +17,11 @@
                 <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl p-6 shadow-lg shadow-indigo-500/25 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-indigo-100 text-sm font-medium">Notes Non Validées</p>
-                            <p class="text-3xl font-bold mt-1">{{ $stats['pending_validation'] }}</p>
+                            <p class="text-indigo-100 text-sm font-medium">Mes Classes</p>
+                            <p class="text-3xl font-bold mt-1">{{ $stats['classes_count'] }}</p>
                         </div>
                         <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                         </div>
                     </div>
                 </div>
@@ -29,11 +29,11 @@
                 <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 shadow-lg shadow-emerald-500/25 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-emerald-100 text-sm font-medium">Notes Validées</p>
-                            <p class="text-3xl font-bold mt-1">{{ $stats['validated'] }}</p>
+                            <p class="text-emerald-100 text-sm font-medium">Mes Étudiants</p>
+                            <p class="text-3xl font-bold mt-1">{{ $stats['students_count'] }}</p>
                         </div>
                         <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                         </div>
                     </div>
                 </div>
@@ -41,11 +41,11 @@
                 <div class="bg-gradient-to-br from-violet-500 to-violet-600 rounded-2xl p-6 shadow-lg shadow-violet-500/25 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-violet-100 text-sm font-medium">Total Notes</p>
-                            <p class="text-3xl font-bold mt-1">{{ $stats['total_notes'] }}</p>
+                            <p class="text-violet-100 text-sm font-medium">Mes Matières</p>
+                            <p class="text-3xl font-bold mt-1">{{ $stats['matieres_count'] }}</p>
                         </div>
                         <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                         </div>
                     </div>
                 </div>
@@ -53,51 +53,95 @@
                 <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-6 shadow-lg shadow-amber-500/25 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-amber-100 text-sm font-medium">Moyenne Générale</p>
-                            <p class="text-3xl font-bold mt-1">{{ number_format($moyenne_generale, 1) }}</p>
+                            <p class="text-amber-100 text-sm font-medium">Évaluations</p>
+                            <p class="text-3xl font-bold mt-1">{{ $stats['total_evaluations'] }}</p>
                         </div>
                         <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
                     </div>
                 </div>
             </div>
 
+            @if($assignedClasses->count() > 0)
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 class="font-semibold text-slate-800">Saisie des Notes</h3>
+                    <p class="text-sm text-slate-500 mt-1">Sélectionnez une évaluation pour saisir les notes des étudiants</p>
+                </div>
+                <div class="p-6">
+                    <form method="GET" action="{{ route('notes.saisir', ['evaluation' => 'EVAL_ID']) }}" id="gradeForm" class="flex items-end gap-4">
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Évaluation</label>
+                            <select id="evaluationSelect" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">Sélectionner une évaluation...</option>
+                                @forelse($availableEvaluations as $eval)
+                                <option value="{{ $eval->id }}">
+                                    {{ $eval->classe->libelle ?? 'N/A' }} - {{ $eval->matiere->libelle ?? 'N/A' }} ({{ $eval->type }} - {{ $eval->date_evaluation->format('d/m/Y') }})
+                                </option>
+                                @empty
+                                <option value="" disabled>Aucune évaluation disponible</option>
+                                @endforelse
+                            </select>
+                        </div>
+                        <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors shadow-sm">
+                            Saisir les Notes
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @endif
+
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                        <h3 class="font-semibold text-slate-800">Notes en Attente de Validation</h3>
+                        <h3 class="font-semibold text-slate-800">Mes Classes</h3>
                     </div>
                     <div class="p-0">
-                        <table class="w-full">
-                            <thead class="bg-slate-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Étudiant</th>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Matière</th>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Note</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                @forelse($unvalidated_notes as $note)
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-4 py-3 text-sm text-slate-700">
-                                        {{ $note->etudiant->utilisateur->nom ?? '' }} {{ $note->etudiant->utilisateur->prenom ?? '' }}
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-slate-600">{{ $note->evaluation->matiere->libelle ?? 'N/A' }}</td>
-                                    <td class="px-4 py-3 text-sm font-bold {{ $note->note >= 10 ? 'text-emerald-600' : 'text-red-500' }}">
-                                        {{ $note->note }}/20
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="3" class="px-4 py-6 text-center text-sm text-slate-400">Aucune note en attente</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                        @forelse($assignedClasses as $classe)
+                        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors">
+                            <div>
+                                <p class="font-medium text-slate-800">{{ $classe->libelle }}</p>
+                                <p class="text-sm text-slate-500">{{ $classe->level->libelle ?? 'N/A' }} - {{ $classe->specialization->libelle ?? 'N/A' }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-indigo-600">{{ $classe->etudiants->count() }}</p>
+                                <p class="text-xs text-slate-500">étudiants</p>
+                            </div>
+                        </div>
+                        @empty
+                        <div class="px-6 py-8 text-center text-sm text-slate-400">
+                            Aucune classe assignée
+                        </div>
+                        @endforelse
                     </div>
                 </div>
 
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                        <h3 class="font-semibold text-slate-800">Mes Matières</h3>
+                    </div>
+                    <div class="p-0">
+                        @forelse($assignedMatieres as $mc)
+                        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors">
+                            <div>
+                                <p class="font-medium text-slate-800">{{ $mc->matiere->libelle ?? 'N/A' }}</p>
+                                <p class="text-sm text-slate-500">{{ $mc->classe->libelle ?? 'N/A' }}</p>
+                            </div>
+                            <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            </div>
+                        </div>
+                        @empty
+                        <div class="px-6 py-8 text-center text-sm text-slate-400">
+                            Aucune matière assignée
+                        </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                         <h3 class="font-semibold text-slate-800">Évaluations Récentes</h3>
@@ -106,9 +150,10 @@
                         <table class="w-full">
                             <thead class="bg-slate-50">
                                 <tr>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Type</th>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Matière</th>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Classe</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Type</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Matière</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Classe</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Date</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -121,55 +166,51 @@
                                     </td>
                                     <td class="px-4 py-3 text-sm text-slate-700">{{ $eval->matiere->libelle ?? 'N/A' }}</td>
                                     <td class="px-4 py-3 text-sm text-slate-600">{{ $eval->classe->libelle ?? 'N/A' }}</td>
+                                    <td class="px-4 py-3 text-sm text-slate-500">{{ $eval->date_evaluation->format('d/m/Y') }}</td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="3" class="px-4 py-6 text-center text-sm text-slate-400">Aucune évaluation</td>
+                                    <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-400">Aucune évaluation</td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <h3 class="font-semibold text-slate-800 mb-4">Actions Rapides</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <a href="{{ route('evaluations.index') }}" class="flex items-center gap-3 p-4 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors">
-                            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            </div>
-                            <span class="text-sm font-medium text-slate-700">Mes Évaluations</span>
-                        </a>
-                        <a href="{{ route('notes.index') }}" class="flex items-center gap-3 p-4 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors">
-                            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                            </div>
-                            <span class="text-sm font-medium text-slate-700">Saisir Notes</span>
-                        </a>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                        <h3 class="font-semibold text-slate-800">Actions Rapides</h3>
                     </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <h3 class="font-semibold text-slate-800 mb-4">Instructions</h3>
-                    <ul class="space-y-2 text-sm text-slate-600">
-                        <li class="flex items-start gap-2">
-                            <svg class="w-5 h-5 text-indigo-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>Créez des évaluations pour vos classes</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-5 h-5 text-indigo-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>Saisissez les notes des étudiants</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-5 h-5 text-indigo-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>Validez les notes avant de les partager</span>
-                        </li>
-                    </ul>
+                    <div class="p-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <a href="{{ route('evaluations.create') }}" class="flex items-center gap-3 p-4 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors">
+                                <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                </div>
+                                <span class="text-sm font-medium text-slate-700">Nouvelle Évaluation</span>
+                            </a>
+                            <a href="{{ route('evaluations.index') }}" class="flex items-center gap-3 p-4 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors">
+                                <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                </div>
+                                <span class="text-sm font-medium text-slate-700">Toutes les Évaluations</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('gradeForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const select = document.getElementById('evaluationSelect');
+            if (select.value) {
+                const action = this.action.replace('EVAL_ID', select.value);
+                window.location.href = action;
+            }
+        });
+    </script>
 </x-app-layout>

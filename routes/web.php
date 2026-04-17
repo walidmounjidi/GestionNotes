@@ -32,6 +32,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('specializations', SpecializationController::class);
         Route::resource('levels', LevelController::class);
         Route::resource('classes', \App\Http\Controllers\ClasseController::class)->parameters(['classes' => 'classe'])->only(['create', 'edit', 'store', 'update', 'destroy']);
+        
+        Route::post('/manager/assign-subject', [\App\Http\Controllers\Dashboard\ManagerController::class, 'assignSubject'])->name('manager.assignSubject');
+        Route::post('/manager/remove-subject', [\App\Http\Controllers\Dashboard\ManagerController::class, 'removeSubject'])->name('manager.removeSubject');
     });
 
     Route::middleware('role:admin,manager,teacher')->group(function () {
@@ -41,13 +44,23 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:admin,manager,teacher')->group(function () {
         Route::get('/teacher/dashboard', [\App\Http\Controllers\Teacher\TeacherController::class, 'dashboard'])->name('teacher.dashboard');
-        Route::resource('teacher', TeacherController::class)->names(['index' => 'teacher.index', 'store' => 'teacher.store']);
+        Route::resource('teacher', TeacherController::class)->names([
+            'index' => 'teacher.index',
+            'create' => 'teacher.create',
+            'store' => 'teacher.store',
+            'show' => 'teacher.show',
+            'edit' => 'teacher.edit',
+            'update' => 'teacher.update',
+            'destroy' => 'teacher.destroy',
+        ]);
     });
 
     Route::middleware('role:admin,manager,teacher')->group(function () {
         Route::resource('notes', \App\Http\Controllers\NoteController::class)->except(['saisir']);
         Route::get('evaluations/{evaluation}/saisir', [\App\Http\Controllers\NoteController::class, 'saisir'])->name('notes.saisir');
         Route::post('evaluations/{evaluation}/saisir', [\App\Http\Controllers\NoteController::class, 'storeSaisir'])->name('notes.storeSaisir');
+        
+        Route::post('/teacher/update-grades', [\App\Http\Controllers\Dashboard\TeacherController::class, 'updateGrades'])->name('teacher.updateGrades');
     });
 
     Route::middleware('role:admin')->group(function () {

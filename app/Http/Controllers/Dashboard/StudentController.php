@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Etudiant;
-use App\Models\Note;
 use App\Models\Evaluation;
-use Illuminate\Http\Request;
+use App\Models\Note;
 use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
@@ -16,7 +15,7 @@ class StudentController extends Controller
         $user = Auth::user();
         $etudiant = $user->etudiant;
 
-        if (!$etudiant) {
+        if (! $etudiant) {
             return redirect()->route('welcome')->with('error', 'Profil étudiant non trouvé');
         }
 
@@ -39,7 +38,7 @@ class StudentController extends Controller
             ->where('etudiant_id', $etudiant->id)
             ->get()
             ->groupBy('evaluation.matiere.libelle')
-            ->map(function ($notes) {
+            ->map(function ($notes, $matiereName) {
                 return [
                     'count' => $notes->count(),
                     'avg' => round($notes->avg('note'), 2),
@@ -48,6 +47,23 @@ class StudentController extends Controller
                 ];
             });
 
+        $studentSubjects = [];
+        if ($etudiant->classe_id && $etudiant->classe) {
+            $studentSubjects = $etudiant->classe->matieres->map(function ($matiere) use ($etudiant) {
+                $matiereNotes = Note::where('etudiant_id', $etudiant->id)
+                    ->whereHas('evaluation', function ($q) use ($matiere) {
+                        $q->where('matiere_id', $matiere->id);
+                    })
+                    ->get();
+
+                return [
+                    'matiere' => $matiere,
+                    'average' => $matiereNotes->avg('note') ? round($matiereNotes->avg('note'), 2) : null,
+                    'notes_count' => $matiereNotes->count(),
+                ];
+            });
+        }
+
         $ranking = null;
         if ($etudiant->classe_id) {
             $classe_etudiants = Etudiant::where('classe_id', $etudiant->classe_id)
@@ -55,6 +71,7 @@ class StudentController extends Controller
                 ->get()
                 ->map(function ($e) {
                     $e->moyenne = $e->notes->avg('note') ?? 0;
+
                     return $e;
                 })
                 ->sortByDesc('moyenne')
@@ -76,6 +93,7 @@ class StudentController extends Controller
             'upcoming_evaluations',
             'moyenne_generale',
             'notes_by_matiere',
+            'studentSubjects',
             'ranking'
         ));
     }

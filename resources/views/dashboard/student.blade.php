@@ -119,9 +119,52 @@
                 </div>
             </div>
 
+            @if($studentSubjects->count() > 0)
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 class="font-semibold text-slate-800">Mes Matières</h3>
+                    <p class="text-sm text-slate-500 mt-1">Matières enseignées dans ma classe avec mes moyennes</p>
+                </div>
+                <div class="p-0">
+                    <table class="w-full">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Matière</th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Coefficient</th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Notes</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Moyenne</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($studentSubjects as $item)
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-4 py-3 text-sm font-medium text-slate-700">{{ $item['matiere']->libelle }}</td>
+                                <td class="px-4 py-3 text-sm text-center text-slate-600">{{ $item['matiere']->coefficient }}</td>
+                                <td class="px-4 py-3 text-sm text-center text-slate-600">{{ $item['notes_count'] }}</td>
+                                <td class="px-4 py-3 text-sm text-right">
+                                    @if($item['average'] !== null)
+                                        <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-sm font-medium {{ $item['average'] >= 10 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
+                                            {{ $item['average'] }}/20
+                                        </span>
+                                    @else
+                                        <span class="text-slate-400 text-sm">Pas de notes</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-400">Aucune matière trouvée</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
+
             @if($notes_by_matiere->count() > 0)
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <h3 class="font-semibold text-slate-800 mb-4">Mes Résultats par Matière</h3>
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+                <h3 class="font-semibold text-slate-800 mb-4">Détails des Notes par Matière</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     @foreach($notes_by_matiere as $matiere => $stats)
                     <div class="bg-slate-50 rounded-xl p-4">

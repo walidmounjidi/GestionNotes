@@ -46,26 +46,52 @@ class UtilisateurController extends Controller
         $request->validate([
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:utilisateurs',
-            'password' => 'required|string|min:8|confirmed',
+            'email' => 'nullable|string|email|max:255|unique:utilisateurs',
+            'password' => 'nullable|string|min:8|confirmed',
             'telephone' => 'nullable|string|max:20',
             'roles' => 'required|array',
         ]);
+
+        $roles = Role::whereIn('id', $request->roles)->pluck('code')->toArray();
+        
+        $email = $request->email;
+        $password = $request->password;
+        $emailLocked = false;
+
+        if (in_array('teacher', $roles)) {
+            $email = $email ?: Utilisateur::generateTeacherEmail();
+            $password = $password ?: Utilisateur::generatePassword();
+            $emailLocked = true;
+        } elseif (in_array('student', $roles)) {
+            $email = $email ?: Utilisateur::generateStudentEmail();
+            $password = $password ?: Utilisateur::generatePassword();
+            $emailLocked = true;
+        } else {
+            $password = $password ?: Utilisateur::generatePassword();
+        }
 
         $utilisateur = Utilisateur::create([
             'uuid' => Str::uuid()->toString(),
             'nom' => $request->nom,
             'prenom' => $request->prenom,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'email' => $email,
+            'password' => Hash::make($password),
             'telephone' => $request->telephone,
             'etat' => 'actif',
             'email_verified_at' => now(),
+            'email_locked' => $emailLocked,
         ]);
 
         $utilisateur->roles()->sync($request->roles);
 
-        return redirect()->route('utilisateurs.index')->with('success', 'Utilisateur créé avec succès.');
+        $credentials = [
+            'email' => $email,
+            'password' => $password,
+        ];
+
+        return redirect()->route('utilisateurs.index')
+            ->with('success', 'Utilisateur créé avec succès.')
+            ->with('credentials', $credentials);
     }
 
     public function show(Utilisateur $utilisateur)
@@ -83,21 +109,29 @@ class UtilisateurController extends Controller
 
     public function update(Request $request, Utilisateur $utilisateur)
     {
-        $request->validate([
+        $validationRules = [
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:utilisateurs,email,' . $utilisateur->id,
             'password' => 'nullable|string|min:8|confirmed',
             'telephone' => 'nullable|string|max:20',
             'roles' => 'required|array',
-        ]);
+        ];
+
+        if ($utilisateur->canEditEmail()) {
+            $validationRules['email'] = 'required|string|email|max:255|unique:utilisateurs,email,' . $utilisateur->id;
+        }
+
+        $request->validate($validationRules);
 
         $data = [
             'nom' => $request->nom,
             'prenom' => $request->prenom,
-            'email' => $request->email,
             'telephone' => $request->telephone,
         ];
+
+        if ($utilisateur->canEditEmail()) {
+            $data['email'] = $request->email;
+        }
 
         if ($request->password) {
             $data['password'] = Hash::make($request->password);

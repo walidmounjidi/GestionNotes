@@ -28,6 +28,10 @@ class Utilisateur extends Authenticatable
         'email_verified_at',
     ];
 
+    protected $attributes = [
+        'email_locked' => false,
+    ];
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -70,6 +74,17 @@ class Utilisateur extends Authenticatable
         return $this->belongsToMany(Classe::class, 'teacher_classe');
     }
 
+    public function matieres(): BelongsToMany
+    {
+        return $this->belongsToMany(Matiere::class, 'teacher_matiere')
+            ->withPivot('classe_id');
+    }
+
+    public function matiereClasses(): HasMany
+    {
+        return $this->hasMany(\App\Models\TeacherMatiere::class, 'utilisateur_id');
+    }
+
     public function evaluations(): HasMany
     {
         return $this->hasMany(Evaluation::class);
@@ -80,6 +95,7 @@ class Utilisateur extends Authenticatable
         if (is_string($role)) {
             return $this->roles()->where('code', $role)->exists();
         }
+
         return $this->roles()->whereIn('code', $role)->exists();
     }
 
@@ -111,6 +127,7 @@ class Utilisateur extends Authenticatable
                 return $role;
             }
         }
+
         return null;
     }
 
@@ -122,5 +139,53 @@ class Utilisateur extends Authenticatable
     public function syncRoles(array $roleIds): void
     {
         $this->roles()->sync($roleIds);
+    }
+
+    public static function generateTeacherEmail(): string
+    {
+        do {
+            $randomNumber = random_int(100000, 999999);
+            $email = "PR{$randomNumber}@etu-not.ma";
+        } while (self::where('email', $email)->exists());
+
+        return $email;
+    }
+
+    public static function generateStudentEmail(): string
+    {
+        do {
+            $randomNumber = random_int(100000, 999999);
+            $email = "ET{$randomNumber}@etu-not.ma";
+        } while (self::where('email', $email)->exists());
+
+        return $email;
+    }
+
+    public static function generateSecurePassword(int $length = 12): string
+    {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%';
+
+        return substr(str_shuffle($chars), 0, $length);
+    }
+
+    public function getTeacherScope(): \Illuminate\Database\Eloquent\Builder
+    {
+        return self::whereHas('roles', fn ($q) => $q->where('code', 'teacher'));
+    }
+
+    public function getStudentScope(): \Illuminate\Database\Eloquent\Builder
+    {
+        return self::whereHas('roles', fn ($q) => $q->where('code', 'student'));
+    }
+
+    public function canEditEmail(): bool
+    {
+        return ! $this->email_locked && ! $this->hasRole(['teacher', 'student']);
+    }
+
+    public function lockEmail(): void
+    {
+        $this->email_locked = true;
+        $this->save();
     }
 }
