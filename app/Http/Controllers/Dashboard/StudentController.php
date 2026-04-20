@@ -49,11 +49,36 @@ class StudentController extends Controller
 
         $moyenne_generale = Note::where('etudiant_id', $etudiant->id)->avg('note');
 
+        $progressIndicator = null;
+        if ($moyenne_generale !== null) {
+            if ($moyenne_generale >= 16) {
+                $progressIndicator = ['label' => 'Excellent', 'color' => 'emerald'];
+            } elseif ($moyenne_generale >= 14) {
+                $progressIndicator = ['label' => 'Bien', 'color' => 'blue'];
+            } elseif ($moyenne_generale >= 10) {
+                $progressIndicator = ['label' => 'Passable', 'color' => 'amber'];
+            } else {
+                $progressIndicator = ['label' => 'Insuffisant', 'color' => 'red'];
+            }
+        }
+
+        $upcomingEvaluations = collect();
+        if ($etudiant->classe_id) {
+            $upcomingEvaluations = Evaluation::with(['matiere', 'classe'])
+                ->where('classe_id', $etudiant->classe_id)
+                ->where('date_evaluation', '>', now())
+                ->orderBy('date_evaluation', 'asc')
+                ->take(5)
+                ->get();
+        }
+
         return view('dashboard.student', compact(
             'etudiant',
             'myNotes',
             'mySubjects',
-            'moyenne_generale'
+            'moyenne_generale',
+            'progressIndicator',
+            'upcomingEvaluations'
         ));
     }
 }

@@ -18,7 +18,18 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-indigo-100 text-sm font-medium">Moyenne Générale</p>
-                            <p class="text-3xl font-bold mt-1">{{ $moyenne_generale ? number_format($moyenne_generale, 2) : '-' }}/20</p>
+                            <p class="text-3xl font-bold mt-1">
+                                @if($moyenne_generale !== null)
+                                    {{ number_format($moyenne_generale, 2) }}/20
+                                @else
+                                    --
+                                @endif
+                            </p>
+                            @if($progressIndicator)
+                            <span class="inline-block mt-2 px-2 py-1 text-xs font-medium bg-white/20 rounded-full">
+                                {{ $progressIndicator['label'] }}
+                            </span>
+                            @endif
                         </div>
                         <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -50,6 +61,25 @@
                     </div>
                 </div>
             </div>
+
+            @if($upcomingEvaluations->count() > 0)
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+                <h3 class="font-semibold text-slate-800 mb-4">Évaluations à venir</h3>
+                <div class="space-y-3">
+                    @foreach($upcomingEvaluations as $eval)
+                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+                        <div>
+                            <span class="font-medium text-slate-700">{{ $eval->matiere->libelle ?? 'N/A' }}</span>
+                            <span class="text-sm text-slate-500 block">{{ $eval->type ?? '' }}</span>
+                        </div>
+                        <span class="text-sm text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+                            {{ \Carbon\Carbon::parse($eval->date_evaluation)->format('d/m/Y') }}
+                        </span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
 
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
                 <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">

@@ -25,7 +25,63 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 shadow-lg shadow-emerald-500/25 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-emerald-100 text-sm font-medium">Étudiants</p>
+                            <p class="text-3xl font-bold mt-1">{{ $stats['total_students'] }}</p>
+                        </div>
+                        <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-violet-500 to-violet-600 rounded-2xl p-6 shadow-lg shadow-violet-500/25 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-violet-100 text-sm font-medium">Classes</p>
+                            <p class="text-3xl font-bold mt-1">{{ $stats['total_classes'] }}</p>
+                        </div>
+                        <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl p-6 shadow-lg shadow-amber-500/25 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-amber-100 text-sm font-medium">Matières</p>
+                            <p class="text-3xl font-bold mt-1">{{ $stats['total_matieres'] }}</p>
+                        </div>
+                        <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253m0-13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253"/></svg>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            @if($classesWithoutTeacher->count() > 0)
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <div>
+                        <h3 class="font-semibold text-amber-800">Classes sans professeur ({{ $classesWithoutTeacher->count() }})</h3>
+                        <p class="text-sm text-amber-700">Ces classes n'ont pas encore de professeur assigné. Veuillez en assigner un pour gérer les évaluations et les notes.</p>
+                    </div>
+                </div>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    @foreach($classesWithoutTeacher as $classe)
+                    <div class="bg-white rounded-lg p-3 border border-amber-200">
+                        <span class="font-medium text-slate-700">{{ $classe->libelle }}</span>
+                        <span class="text-xs text-slate-500">{{ $classe->level->libelle ?? '' }} {{ $classe->specialization->libelle ?? '' }}</span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
 
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
                 <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">

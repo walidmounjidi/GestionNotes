@@ -49,12 +49,37 @@ class TeacherController extends Controller
             ->orderBy('date_evaluation', 'desc')
             ->get();
 
+        $upcomingEvaluations = Evaluation::with(['matiere', 'classe'])
+            ->where(function ($query) use ($user, $assignedClasses) {
+                $query->whereHas('classe.teachers', function ($q) use ($user) {
+                    $q->where('utilisateur_id', $user->id);
+                })
+                    ->orWhereIn('classe_id', $assignedClasses->pluck('id'));
+            })
+            ->where('date_evaluation', '>', now())
+            ->orderBy('date_evaluation', 'asc')
+            ->take(5)
+            ->get();
+
+        $recentNotes = Note::whereHas('evaluation', function ($query) use ($user, $assignedClasses) {
+            $query->whereHas('classe.teachers', function ($q) use ($user) {
+                $q->where('utilisateur_id', $user->id);
+            })
+                ->orWhereIn('classe_id', $assignedClasses->pluck('id'));
+        })
+            ->with(['evaluation.matiere', 'evaluation.classe', 'etudiant.utilisateur'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
         return view('dashboard.teacher', compact(
             'stats',
             'assignedClasses',
             'assignedMatieres',
             'studentsByClass',
-            'availableEvaluations'
+            'availableEvaluations',
+            'upcomingEvaluations',
+            'recentNotes'
         ));
     }
 

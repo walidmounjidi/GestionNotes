@@ -60,10 +60,14 @@
                         @forelse($assignedClasses as $classe)
                         <div class="border border-slate-200 rounded-lg p-4">
                             <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-medium text-slate-700">{{ $classe->libelle }}</h4>
-                                <span class="text-sm text-slate-500">{{ $classe->level->libelle ?? '' }} - {{ $classe->specialization->libelle ?? '' }}</span>
+                                <div>
+                                    <h4 class="font-medium text-slate-700">{{ $classe->libelle }}</h4>
+                                    <span class="text-xs text-slate-500">{{ $classe->level->libelle ?? '' }} - {{ $classe->specialization->libelle ?? '' }}</span>
+                                </div>
+                                <span class="inline-flex items-center justify-center w-8 h-8 bg-emerald-100 text-emerald-700 rounded-full font-semibold text-sm">
+                                    {{ $classe->etudiants->count() }}
+                                </span>
                             </div>
-                            <div class="text-sm text-slate-600">{{ $classe->etudiants->count() }} étudiants</div>
                         </div>
                         @empty
                         <div class="text-center py-8 text-slate-400">
@@ -94,18 +98,45 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <h3 class="font-semibold text-slate-800 mb-4">Instructions</h3>
-                <ul class="space-y-2 text-sm text-slate-600">
-                    <li class="flex items-start gap-2">
-                        <svg class="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <span>Créez d'abord une évaluation avant de saisir des notes</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <span>Les notes sont automatiquement enregistrées pour chaque étudiant</span>
-                    </li>
-                </ul>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-semibold text-slate-800 mb-4">Évaluations à venir</h3>
+                    @forelse($upcomingEvaluations as $eval)
+                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+                        <div>
+                            <span class="font-medium text-slate-700">{{ $eval->matiere->libelle ?? 'N/A' }}</span>
+                            <span class="text-sm text-slate-500 block">{{ $eval->classe->libelle ?? 'N/A' }}</span>
+                        </div>
+                        <span class="text-sm text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+                            {{ \Carbon\Carbon::parse($eval->date_evaluation)->format('d/m/Y') }}
+                        </span>
+                    </div>
+                    @empty
+                    <p class="text-sm text-slate-400">Aucune évaluation à venir</p>
+                    @endforelse
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-semibold text-slate-800 mb-4">Notes récentes</h3>
+                    @forelse($recentNotes as $note)
+                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+                        <div>
+                            <span class="font-medium text-slate-700">{{ $note->etudiant->utilisateur->nom ?? '' }} {{ $note->etudiant->utilisateur->prenom ?? '' }}</span>
+                            <span class="text-sm text-slate-500 block">{{ $note->evaluation->matiere->libelle ?? 'N/A' }}</span>
+                        </div>
+                        <span class="font-semibold text-emerald-600">{{ number_format($note->note, 2) }}/20</span>
+                    </div>
+                    @empty
+                    <p class="text-sm text-slate-400">Aucune note récente</p>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <a href="{{ route('evaluations.create') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors shadow-lg shadow-indigo-500/25">
+                    <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Saisir une note
+                </a>
             </div>
         </div>
     </div>

@@ -19,7 +19,12 @@ class ManagerController extends Controller
             })->count(),
             'total_students' => Etudiant::count(),
             'total_classes' => Classe::count(),
+            'total_matieres' => Matiere::count(),
         ];
+
+        $classesWithoutTeacher = Classe::whereDoesntHave('teachers')
+            ->with(['level', 'specialization'])
+            ->get();
 
         $teachers = Utilisateur::whereHas('roles', function ($q) {
             $q->where('code', 'teacher');
@@ -53,7 +58,8 @@ class ManagerController extends Controller
             'stats',
             'teachers',
             'matieres',
-            'classes'
+            'classes',
+            'classesWithoutTeacher'
         ));
     }
 
