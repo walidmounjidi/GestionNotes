@@ -61,6 +61,7 @@ class EtudiantController extends Controller
             'prenom' => $request->prenom,
             'email' => $email,
             'password' => Hash::make($password),
+            'email_locked' => true,
         ]);
 
         $studentRole = \App\Models\Role::where('code', 'student')->first();

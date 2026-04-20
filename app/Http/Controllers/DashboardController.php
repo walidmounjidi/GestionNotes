@@ -5,11 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Etudiant;
-use App\Models\Classe;
-use App\Models\Matiere;
-use App\Models\Evaluation;
-use App\Models\Note;
 
 class DashboardController extends Controller
 {
@@ -17,21 +12,22 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        $stats = [
-            'total_etudiants' => Etudiant::count(),
-            'total_classes' => Classe::count(),
-            'total_matieres' => Matiere::count(),
-            'total_evaluations' => Evaluation::count(),
-            'total_notes' => Note::count(),
-        ];
+        if ($user->isAdmin()) {
+            return redirect()->route('dashboard.admin');
+        }
 
-        $recent_notes = Note::with(['etudiant.utilisateur', 'evaluation.matiere'])
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
+        if ($user->isManager()) {
+            return redirect()->route('dashboard.manager');
+        }
 
-        $moyenne_generale = Note::avg('note');
+        if ($user->isTeacher()) {
+            return redirect()->route('dashboard.teacher');
+        }
 
-        return view('dashboard', compact('stats', 'recent_notes', 'moyenne_generale'));
+        if ($user->isStudent()) {
+            return redirect()->route('dashboard.student');
+        }
+
+        abort(403, 'Aucun rôle valide trouvé. Veuillez contacter l\'administrateur.');
     }
 }

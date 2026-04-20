@@ -16,7 +16,13 @@ class StudentController extends Controller
         $etudiant = $user->etudiant;
 
         if (! $etudiant) {
-            return redirect()->route('welcome')->with('error', 'Profil étudiant non trouvé');
+            return view('dashboard.student', [
+                'etudiant' => null,
+                'myNotes' => collect(),
+                'mySubjects' => collect(),
+                'moyenne_generale' => null,
+                'error' => 'Profil étudiant non trouvé. Veuillez contacter l\'administrateur.',
+            ]);
         }
 
         $myNotes = Note::with(['evaluation.matiere', 'evaluation.classe'])

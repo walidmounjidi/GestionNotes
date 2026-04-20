@@ -18,13 +18,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/admin', [\App\Http\Controllers\Dashboard\AdminController::class, 'index'])->name('dashboard.admin');
         Route::resource('utilisateurs', UtilisateurController::class);
         Route::resource('teacher', TeacherController::class);
+        Route::resource('etudiants', \App\Http\Controllers\EtudiantController::class);
     });
 
     Route::middleware('role:manager')->group(function () {
         Route::get('/dashboard/manager', [\App\Http\Controllers\Dashboard\ManagerController::class, 'index'])->name('dashboard.manager');
         Route::post('/manager/assign-subject', [\App\Http\Controllers\Dashboard\ManagerController::class, 'assignSubject'])->name('manager.assignSubject');
         Route::post('/manager/remove-subject', [\App\Http\Controllers\Dashboard\ManagerController::class, 'removeSubject'])->name('manager.removeSubject');
-        Route::resource('etudiants', \App\Http\Controllers\EtudiantController::class);
     });
 
     Route::middleware('role:teacher')->group(function () {

@@ -41,6 +41,7 @@ class Utilisateur extends Authenticatable
         'email_verified_at' => 'datetime',
         'derniere_connexion_at' => 'datetime',
         'password' => 'hashed',
+        'email_locked' => 'boolean',
     ];
 
     protected static function boot()
@@ -144,8 +145,8 @@ class Utilisateur extends Authenticatable
     public static function generateTeacherEmail(): string
     {
         do {
-            $randomNumber = random_int(100000, 999999);
-            $email = "PR{$randomNumber}@etu-not.ma";
+            $randomNumber = random_int(1000000, 9999999);
+            $email = "PR{$randomNumber}@etu-note.ma";
         } while (self::where('email', $email)->exists());
 
         return $email;
@@ -154,8 +155,8 @@ class Utilisateur extends Authenticatable
     public static function generateStudentEmail(): string
     {
         do {
-            $randomNumber = random_int(100000, 999999);
-            $email = "ET{$randomNumber}@etu-not.ma";
+            $randomNumber = random_int(1000000, 9999999);
+            $email = "TE{$randomNumber}@etu-note.ma";
         } while (self::where('email', $email)->exists());
 
         return $email;
@@ -163,9 +164,23 @@ class Utilisateur extends Authenticatable
 
     public static function generateSecurePassword(int $length = 12): string
     {
-        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%';
+        $lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $numbers = '0123456789';
+        $special = '!@#$%';
 
-        return substr(str_shuffle($chars), 0, $length);
+        $allChars = $lowercase . $uppercase . $numbers . $special;
+
+        $password = $lowercase[random_int(0, strlen($lowercase) - 1)];
+        $password .= $uppercase[random_int(0, strlen($uppercase) - 1)];
+        $password .= $numbers[random_int(0, strlen($numbers) - 1)];
+        $password .= $special[random_int(0, strlen($special) - 1)];
+
+        for ($i = 4; $i < $length; $i++) {
+            $password .= $allChars[random_int(0, strlen($allChars) - 1)];
+        }
+
+        return str_shuffle($password);
     }
 
     public function getTeacherScope(): \Illuminate\Database\Eloquent\Builder
@@ -180,12 +195,17 @@ class Utilisateur extends Authenticatable
 
     public function canEditEmail(): bool
     {
-        return ! $this->email_locked && ! $this->hasRole(['teacher', 'student']);
+        return ! (bool) $this->getAttribute('email_locked');
     }
 
     public function lockEmail(): void
     {
-        $this->email_locked = true;
+        $this->setAttribute('email_locked', true);
         $this->save();
+    }
+
+    public function isEmailLocked(): bool
+    {
+        return (bool) $this->getAttribute('email_locked');
     }
 }

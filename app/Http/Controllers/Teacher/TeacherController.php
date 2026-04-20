@@ -65,6 +65,7 @@ class TeacherController extends Controller
             'password' => bcrypt($password),
             'etat' => 'actif',
             'email_verified_at' => now(),
+            'email_locked' => true,
         ]);
 
         $teacherRole = \App\Models\Role::where('code', 'teacher')->first();

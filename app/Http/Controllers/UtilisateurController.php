@@ -60,14 +60,14 @@ class UtilisateurController extends Controller
 
         if (in_array('teacher', $roles)) {
             $email = $email ?: Utilisateur::generateTeacherEmail();
-            $password = $password ?: Utilisateur::generatePassword();
+            $password = $password ?: Utilisateur::generateSecurePassword();
             $emailLocked = true;
         } elseif (in_array('student', $roles)) {
             $email = $email ?: Utilisateur::generateStudentEmail();
-            $password = $password ?: Utilisateur::generatePassword();
+            $password = $password ?: Utilisateur::generateSecurePassword();
             $emailLocked = true;
         } else {
-            $password = $password ?: Utilisateur::generatePassword();
+            $password = $password ?: Utilisateur::generateSecurePassword();
         }
 
         $utilisateur = Utilisateur::create([

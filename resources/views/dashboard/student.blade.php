@@ -18,7 +18,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-indigo-100 text-sm font-medium">Moyenne Générale</p>
-                            <p class="text-3xl font-bold mt-1">{{ number_format($moyenne_generale, 2) }}/20</p>
+                            <p class="text-3xl font-bold mt-1">{{ $moyenne_generale ? number_format($moyenne_generale, 2) : '-' }}/20</p>
                         </div>
                         <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -51,12 +51,11 @@
                 </div>
             </div>
 
-            <!-- My Subjects -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
                 <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                     <h3 class="font-semibold text-slate-800">Mes Matières</h3>
                 </div>
-                <div class="p-0">
+                <div class="p-4">
                     @forelse($mySubjects as $subject)
                     <div class="border border-slate-200 rounded-lg p-4 mb-4">
                         <div class="flex items-center justify-between mb-2">
@@ -74,7 +73,7 @@
                         <div class="text-sm text-slate-600">
                             <span>{{ $subject['notes_count'] }} note(s)</span>
                             @if($subject['average'])
-                                <span> • Moyenne: {{ number_format($subject['average'], 2) }}/20</span>
+                                <span> - Moyenne: {{ number_format($subject['average'], 2) }}/20</span>
                             @endif
                         </div>
                     </div>
@@ -86,51 +85,39 @@
                 </div>
             </div>
 
-            <!-- My Grades -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                     <h3 class="font-semibold text-slate-800">Mes Notes</h3>
                 </div>
-                <div class="p-0">
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-slate-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Matière</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Note</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                @forelse($myNotes as $note)
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-4 py-3 text-sm text-slate-700">{{ $note->evaluation->matiere->libelle ?? 'N/A' }}</td>
-                                    <td class="px-4 py-3 text-sm font-bold {{ $note->note >= 10 ? 'text-emerald-600' : 'text-red-500' }}">
-                                        {{ $note->note }}/20
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-slate-500">{{ $note->created_at->format('d/m/Y') }}</td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="3" class="px-4 py-6 text-center text-sm text-slate-400">Aucune note</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    @foreach($upcoming_evaluations as $eval)
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors">
-                        <div>
-                            <p class="font-medium text-slate-800">{{ $eval->matiere->libelle ?? 'N/A' }}</p>
-                            <p class="text-sm text-slate-500">{{ $eval->type }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-medium text-slate-800">{{ $eval->date_evaluation->format('d/m/Y') }}</p>
-                        </div>
-                    </div>
-                    @endforeach
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Matière</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Type</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Note</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($myNotes as $note)
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-4 py-3 text-sm text-slate-700">{{ $note->evaluation->matiere->libelle ?? 'N/A' }}</td>
+                                <td class="px-4 py-3 text-sm text-slate-500">{{ $note->evaluation->type ?? 'N/A' }}</td>
+                                <td class="px-4 py-3 text-sm font-bold {{ ($note->note ?? 0) >= 10 ? 'text-emerald-600' : 'text-red-500' }}">
+                                    {{ $note->note }}/20
+                                </td>
+                                <td class="px-4 py-3 text-sm text-slate-500">{{ $note->created_at->format('d/m/Y') }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-400">Aucune note</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            @endif
         </div>
     </div>
 </x-app-layout>
