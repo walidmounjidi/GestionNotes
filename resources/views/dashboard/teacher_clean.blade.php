@@ -64,7 +64,9 @@
                                 <h4 class="font-medium text-slate-700">{{ $classe->libelle }}</h4>
                                 <span class="text-sm text-slate-500">{{ $classe->level->libelle ?? '' }} - {{ $classe->specialization->libelle ?? '' }}</span>
                             </div>
-                            <div class="text-sm text-slate-600">{{ $classe->etudiants->count() }} étudiants</div>
+                            <div class="text-sm text-slate-600">
+                                <span>{{ $classe->etudiants->count() }} étudiants</span>
+                            </div>
                         </div>
                         @empty
                         <div class="text-center py-8 text-slate-400">
@@ -77,37 +79,79 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                         <h3 class="font-semibold text-slate-800">Matières Assignées</h3>
+                    </div>
+                    <div class="space-y-3">
+                        @forelse($assignedMatieres as $matiere)
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                            <div>
+                                <div class="font-medium text-slate-700">{{ $matiere->matiere->libelle }}</div>
+                                <div class="text-sm text-slate-500">{{ $matiere->classe->libelle }}</div>
                             </div>
-                            <span class="text-sm font-medium text-slate-700">Mes Évaluations</span>
-                        </a>
+                            <span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">Assignée</span>
+                        </div>
+                        @empty
+                        <div class="text-center py-8 text-slate-400">
+                            Aucune matière assignée
+                        </div>
+                        @endforelse
                     </div>
                 </div>
+            </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <h3 class="font-semibold text-slate-800 mb-4">Instructions</h3>
-                    <ul class="space-y-2 text-sm text-slate-600">
-                        <li class="flex items-start gap-2">
-                            <svg class="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>Créez d'abord une évaluation avant de saisir des notes</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>Les notes sont automatiquement enregistrées pour chaque étudiant</span>
-                        </li>
-                    </ul>
+            <!-- Students and Grades Management -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 class="font-semibold text-slate-800">Gestion des Notes</h3>
+                </div>
+                <div class="p-0">
+                    @forelse($studentsByClass as $classData)
+                    <div class="mb-8">
+                        <h4 class="font-medium text-slate-700 mb-4">{{ $classData['classe']->libelle }}</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Étudiant</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Matières</th>
+                                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Notes</th>
+                                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Moyenne</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    @forelse($classData['students'] as $studentData)
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-4 py-3 text-sm text-slate-700">
+                                            {{ $studentData['etudiant']->utilisateur->nom }} {{ $studentData['etudiant']->utilisateur->prenom }}
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-slate-600">
+                                            @foreach($studentData['notes'] as $note)
+                                                <span class="inline-block px-2 py-1 text-xs bg-slate-100 rounded mr-1 mb-1">
+                                                    {{ $note->evaluation->matiere->libelle }}: {{ $note->note }}/20
+                                                </span>
+                                            @endforeach
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-center">
+                                            @if($studentData['moyenne'])
+                                                <span class="font-bold {{ $studentData['moyenne'] >= 10 ? 'text-emerald-600' : 'text-red-500' }}">
+                                                    {{ number_format($studentData['moyenne'], 2) }}/20
+                                                </span>
+                                            @else
+                                                <span class="text-slate-400">-</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-400">Aucun étudiant dans cette classe</td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    @empty
+                    @endforelse
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        document.getElementById('gradeForm')?.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const select = document.getElementById('evaluationSelect');
-            if (select.value) {
-                const action = this.action.replace('EVAL_ID', select.value);
-                window.location.href = action;
-            }
-        });
-    </script>
 </x-app-layout>

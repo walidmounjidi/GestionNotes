@@ -45,7 +45,7 @@
                             <p class="text-3xl font-bold mt-1">{{ count($myNotes) }}</p>
                         </div>
                         <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 11-8 0 4 4 0 018 0z"/></svg>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 11-8 0 4 4 0 018 0z"/></svg>
                         </div>
                     </div>
                 </div>
@@ -117,20 +117,9 @@
                                 @endforelse
                             </tbody>
                         </table>
-                    @foreach($upcoming_evaluations as $eval)
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors">
-                        <div>
-                            <p class="font-medium text-slate-800">{{ $eval->matiere->libelle ?? 'N/A' }}</p>
-                            <p class="text-sm text-slate-500">{{ $eval->type }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-medium text-slate-800">{{ $eval->date_evaluation->format('d/m/Y') }}</p>
-                        </div>
                     </div>
-                    @endforeach
                 </div>
             </div>
-            @endif
         </div>
     </div>
 </x-app-layout>
