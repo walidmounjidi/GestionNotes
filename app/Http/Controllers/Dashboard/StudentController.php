@@ -27,29 +27,32 @@ class StudentController extends Controller
             ]);
         }
 
+        $etudiant->load('classe.matieres');
+
         $myNotes = Note::with(['evaluation.matiere', 'evaluation.classe'])
             ->where('etudiant_id', $etudiant->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $moyenne_generale = $myNotes->avg('note');
+
         $mySubjects = [];
         if ($etudiant->classe_id && $etudiant->classe) {
-            $mySubjects = $etudiant->classe->matieres->map(function ($matiere) use ($etudiant) {
-                $matiereNotes = Note::where('etudiant_id', $etudiant->id)
-                    ->whereHas('evaluation', function ($q) use ($matiere) {
-                        $q->where('matiere_id', $matiere->id);
-                    })
-                    ->get();
+            $subjectNotes = Note::with('evaluation')
+                ->where('etudiant_id', $etudiant->id)
+                ->whereHas('evaluation', fn($q) => $q->whereIn('matiere_id', $etudiant->classe->matieres->pluck('id')))
+                ->get()
+                ->groupBy(fn($note) => $note->evaluation->matiere_id);
 
+            $mySubjects = $etudiant->classe->matieres->map(function ($matiere) use ($subjectNotes) {
+                $notes = $subjectNotes->get($matiere->id, collect());
                 return [
                     'matiere' => $matiere,
-                    'average' => $matiereNotes->avg('note') ? round($matiereNotes->avg('note'), 2) : null,
-                    'notes_count' => $matiereNotes->count(),
+                    'average' => $notes->isNotEmpty() ? round($notes->avg('note'), 2) : null,
+                    'notes_count' => $notes->count(),
                 ];
             });
         }
-
-        $moyenne_generale = Note::where('etudiant_id', $etudiant->id)->avg('note');
 
         $progressIndicator = null;
         if ($moyenne_generale !== null) {
