@@ -21,6 +21,8 @@ class StudentController extends Controller
                 'myNotes' => collect(),
                 'mySubjects' => collect(),
                 'moyenne_generale' => null,
+                'progressIndicator' => null,
+                'upcomingEvaluations' => collect(),
                 'error' => 'Profil étudiant non trouvé. Veuillez contacter l\'administrateur.',
             ]);
         }

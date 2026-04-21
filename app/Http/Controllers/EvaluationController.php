@@ -94,6 +94,11 @@ class EvaluationController extends Controller
 
     public function destroy(Evaluation $evaluation)
     {
+        $user = request()->user();
+        if (!$user->hasRole(['admin', 'manager'])) {
+            abort(403, 'Accès non autorisé. Vous n\'avez pas la permission de supprimer des évaluations.');
+        }
+
         $evaluation->delete();
         
         return redirect()->route('evaluations.index')->with('success', 'Évaluation supprimée avec succès');

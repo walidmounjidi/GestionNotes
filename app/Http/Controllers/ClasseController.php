@@ -74,6 +74,11 @@ class ClasseController extends Controller
 
     public function destroy(Classe $classe)
     {
+        $user = request()->user();
+        if (!$user->hasRole(['admin', 'manager'])) {
+            abort(403, 'Accès non autorisé. Vous n\'avez pas la permission de supprimer des classes.');
+        }
+
         $classe->delete();
         
         return redirect()->route('classes.index')->with('success', 'Classe supprimée avec succès');

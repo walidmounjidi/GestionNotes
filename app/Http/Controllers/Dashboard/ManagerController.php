@@ -14,11 +14,7 @@ class ManagerController extends Controller
     public function index()
     {
         $stats = [
-            'total_teachers' => Utilisateur::whereHas('roles', function ($q) {
-                $q->where('code', 'teacher');
-            })->count(),
             'total_students' => Etudiant::count(),
-            'total_classes' => Classe::count(),
             'total_matieres' => Matiere::count(),
         ];
 

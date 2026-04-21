@@ -98,6 +98,11 @@ class NoteController extends Controller
 
     public function destroy(Note $note)
     {
+        $user = request()->user();
+        if (!$user->hasRole(['admin', 'manager', 'teacher'])) {
+            abort(403, 'Accès non autorisé. Vous n\'avez pas la permission de supprimer des notes.');
+        }
+
         $note->delete();
         
         return redirect()->route('notes.index')->with('success', 'Note supprimée avec succès');
