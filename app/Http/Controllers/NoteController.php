@@ -113,12 +113,17 @@ class NoteController extends Controller
     {
         $evaluation->load(['matiere', 'classe']);
         
-        // Get students from the class
+        $anneeScolaire = $evaluation->classe->annee_scolaire;
+        
+        $etudiantIds = \App\Models\Inscription::where('classe_id', $evaluation->classe_id)
+            ->where('annee_scolaire', $anneeScolaire)
+            ->where('statut', 'active')
+            ->pluck('etudiant_id');
+        
         $etudiants = \App\Models\Etudiant::with('utilisateur')
-            ->where('classe_id', $evaluation->classe_id)
+            ->whereIn('id', $etudiantIds)
             ->get();
         
-        // Get existing notes for this evaluation
         $notes = Note::where('evaluation_id', $evaluation->id)->get();
         
         return view('notes.saisir', compact('evaluation', 'etudiants', 'notes'));
