@@ -138,7 +138,7 @@ class EtudiantController extends Controller
     public function destroy(Etudiant $etudiant)
     {
         $user = request()->user();
-        if (!$user->hasRole(['admin', 'manager'])) {
+        if (!$user->hasRole(['admin'])) {
             abort(403, 'Accès non autorisé. Vous n\'avez pas la permission de supprimer des étudiants.');
         }
 

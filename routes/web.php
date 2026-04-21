@@ -22,20 +22,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/admin', [\App\Http\Controllers\Dashboard\AdminController::class, 'index'])->name('dashboard.admin');
         Route::resource('utilisateurs', UtilisateurController::class);
         Route::resource('teacher', TeacherController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
-    });
-
-    Route::middleware('role:admin,manager')->group(function () {
-        Route::get('/dashboard/manager', [\App\Http\Controllers\Dashboard\ManagerController::class, 'index'])->name('dashboard.manager');
         Route::resource('etudiants', \App\Http\Controllers\EtudiantController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
-        Route::post('/manager/assign-subject', [\App\Http\Controllers\Dashboard\ManagerController::class, 'assignSubject'])->name('manager.assignSubject');
-        Route::post('/manager/remove-subject', [\App\Http\Controllers\Dashboard\ManagerController::class, 'removeSubject'])->name('manager.removeSubject');
         Route::resource('matieres', \App\Http\Controllers\MatiereController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::resource('specializations', SpecializationController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::resource('levels', LevelController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::resource('classes', \App\Http\Controllers\ClasseController::class)->parameters(['classes' => 'classe'])->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
+        Route::post('/admin/assignSubject', [\App\Http\Controllers\Dashboard\AdminController::class, 'assignSubject'])->name('admin.assignSubject');
+        Route::post('/admin/remove-subject', [\App\Http\Controllers\Dashboard\AdminController::class, 'removeSubject'])->name('admin.removeSubject');
     });
 
-    Route::middleware('role:admin,manager,teacher')->group(function () {
+    Route::middleware('role:admin,teacher')->group(function () {
         Route::resource('evaluations', \App\Http\Controllers\EvaluationController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::get('evaluations/{evaluation}/saisir', [\App\Http\Controllers\NoteController::class, 'saisir'])->name('notes.saisir');
         Route::post('evaluations/{evaluation}/saisir', [\App\Http\Controllers\NoteController::class, 'storeSaisir'])->name('notes.storeSaisir');

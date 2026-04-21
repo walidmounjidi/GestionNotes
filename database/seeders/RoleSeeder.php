@@ -15,12 +15,7 @@ class RoleSeeder extends Seeder
                 'libelle' => 'Administrateur',
                 'description' => 'Accès complet au système, gestion des utilisateurs et configurations',
             ],
-            [
-                'code' => 'manager',
-                'libelle' => 'Gestionnaire',
-                'description' => 'Gestion des étudiants, classes, matières et évaluations',
-            ],
-            [
+                        [
                 'code' => 'teacher',
                 'libelle' => 'Professeur',
                 'description' => 'Saisie et validation des notes pour ses matières assignées',

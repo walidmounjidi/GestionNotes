@@ -77,6 +77,47 @@
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-semibold text-slate-800 mb-4">Assignation des Matières</h3>
+                    <form action="{{ route('admin.assignSubject') }}" method="POST" class="space-y-4">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Professeur</label>
+                                <select name="teacher_id" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="">Sélectionner un professeur</option>
+                                    @foreach(\App\Models\Utilisateur::whereHas('roles', function($q) { $q->where('code', 'teacher'); })->get() as $teacher)
+                                        <option value="{{ $teacher->id }}">{{ $teacher->nom }} {{ $teacher->prenom }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Matière</label>
+                                <select name="matiere_id" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="">Sélectionner une matière</option>
+                                    @foreach(\App\Models\Matiere::all() as $matiere)
+                                        <option value="{{ $matiere->id }}">{{ $matiere->libelle }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Classe</label>
+                                <select name="classe_id" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="">Sélectionner une classe</option>
+                                    @foreach(\App\Models\Classe::with('level', 'specialization')->get() as $classe)
+                                        <option value="{{ $classe->id }}">{{ $classe->libelle }} ({{ $classe->level->libelle ?? '' }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+                            Assigner la Matière
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                     <h3 class="font-semibold text-slate-800 mb-4">Gestion Rapide</h3>
                     <div class="space-y-3">
                         <a href="{{ route('teacher.index') }}" class="flex items-center gap-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">

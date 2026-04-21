@@ -73,7 +73,7 @@ class MatiereController extends Controller
     public function destroy(Matiere $matiere)
     {
         $user = request()->user();
-        if (!$user->hasRole(['admin', 'manager'])) {
+        if (!$user->hasRole(['admin'])) {
             abort(403, 'Accès non autorisé. Vous n\'avez pas la permission de supprimer des matières.');
         }
 

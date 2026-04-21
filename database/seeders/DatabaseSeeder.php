@@ -37,23 +37,5 @@ class DatabaseSeeder extends Seeder
             $admin->assignRole($adminRole);
         }
 
-        $manager = Utilisateur::where('email', 'manager@manager.com')->first();
-        if (!$manager) {
-            $manager = Utilisateur::create([
-                'uuid' => Str::uuid()->toString(),
-                'nom' => 'Manager',
-                'prenom' => 'Système',
-                'email' => 'manager@manager.com',
-                'password' => Hash::make('password'),
-                'telephone' => '+212 6 00 00 00 01',
-                'etat' => 'actif',
-                'email_verified_at' => now(),
-            ]);
-
-            $managerRole = Role::where('code', 'manager')->first();
-            if ($managerRole) {
-                $manager->assignRole($managerRole);
             }
-        }
-    }
 }
