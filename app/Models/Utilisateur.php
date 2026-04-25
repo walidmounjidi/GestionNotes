@@ -22,6 +22,7 @@ class Utilisateur extends Authenticatable
         'prenom',
         'email',
         'password',
+        'temporary_password',
         'telephone',
         'etat',
         'photo_url',

@@ -63,6 +63,7 @@ class TeacherController extends Controller
             'prenom' => $request->prenom,
             'email' => $email,
             'password' => bcrypt($password),
+            'temporary_password' => $password,
             'etat' => 'actif',
             'email_verified_at' => now(),
             'email_locked' => true,

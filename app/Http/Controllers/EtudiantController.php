@@ -71,6 +71,7 @@ class EtudiantController extends Controller
             'prenom' => $request->prenom,
             'email' => $email,
             'password' => Hash::make($password),
+            'temporary_password' => $password,
             'email_locked' => true,
         ]);
 
