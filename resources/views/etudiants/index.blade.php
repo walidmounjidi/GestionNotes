@@ -82,12 +82,12 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            @foreach($etudiants as $etudiant)
+                            @forelse($etudiants as $etudiant)
                             <tr class="hover:bg-slate-50/50 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">{{ $etudiant->matricule }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ $etudiant->utilisateur->nom }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ $etudiant->utilisateur->prenom }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{{ $etudiant->utilisateur->email }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ $etudiant->utilisateur?->nom ?? '-' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ $etudiant->utilisateur?->prenom ?? '-' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{{ $etudiant->utilisateur?->email ?? '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     @if($etudiant->classe)
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
@@ -117,7 +117,11 @@
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-slate-500">Aucun étudiant trouvé.</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

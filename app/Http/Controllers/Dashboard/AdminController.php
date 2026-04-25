@@ -22,7 +22,27 @@ class AdminController extends Controller
             'total_classes' => Classe::count(),
         ];
 
-        return view('dashboard.admin', compact('stats'));
+        // Get class capacity information
+        $classes = Classe::with(['level', 'specialization'])
+            ->orderBy('libelle')
+            ->get()
+            ->map(function ($classe) {
+                return [
+                    'id' => $classe->id,
+                    'libelle' => $classe->libelle,
+                    'level' => $classe->level->libelle ?? '',
+                    'specialization' => $classe->specialization->libelle ?? '',
+                    'student_count' => $classe->student_count,
+                    'max_students' => $classe->max_students,
+                    'available_slots' => $classe->availableSlots(),
+                    'is_full' => $classe->isFull(),
+                    'capacity_percentage' => $classe->max_students > 0 
+                        ? round(($classe->student_count / $classe->max_students) * 100, 1)
+                        : 0,
+                ];
+            });
+
+        return view('dashboard.admin', compact('stats', 'classes'));
     }
 
     public function assignSubject(Request $request)

@@ -116,6 +116,57 @@
                 </div>
             </div>
 
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <h3 class="font-semibold text-slate-800 mb-4">Capacité des Classes</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200">
+                                <th class="text-left py-2 px-2 font-medium text-slate-700">Classe</th>
+                                <th class="text-left py-2 px-2 font-medium text-slate-700">Niveau</th>
+                                <th class="text-center py-2 px-2 font-medium text-slate-700">Capacité</th>
+                                <th class="text-center py-2 px-2 font-medium text-slate-700">Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($classes as $classe)
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="py-2 px-2">
+                                        <div class="font-medium text-slate-800">{{ $classe['libelle'] }}</div>
+                                        @if($classe['specialization'])
+                                            <div class="text-xs text-slate-500">{{ $classe['specialization'] }}</div>
+                                        @endif
+                                    </td>
+                                    <td class="py-2 px-2 text-slate-600">{{ $classe['level'] }}</td>
+                                    <td class="py-2 px-2 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <span class="font-medium {{ $classe['is_full'] ? 'text-red-600' : 'text-slate-800' }}">
+                                                {{ $classe['student_count'] }}/{{ $classe['max_students'] }}
+                                            </span>
+                                            <div class="w-16 bg-slate-200 rounded-full h-2">
+                                                <div class="h-2 rounded-full {{ $classe['capacity_percentage'] >= 90 ? 'bg-red-500' : ($classe['capacity_percentage'] >= 70 ? 'bg-yellow-500' : 'bg-green-500') }}"
+                                                     style="width: {{ $classe['capacity_percentage'] }}%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-2 px-2 text-center">
+                                        @if($classe['is_full'])
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                Complète
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                {{ $classe['available_slots'] }} places
+                                            </span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                     <h3 class="font-semibold text-slate-800 mb-4">Gestion Rapide</h3>

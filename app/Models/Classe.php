@@ -22,6 +22,8 @@ class Classe extends Model
         'description',
         'specialization_id',
         'level_id',
+        'student_count',
+        'max_students',
     ];
 
     public function specialization(): BelongsTo
@@ -57,5 +59,53 @@ class Classe extends Model
     public function teachers(): BelongsToMany
     {
         return $this->belongsToMany(Utilisateur::class, 'teacher_classe');
+    }
+
+    public function isFull(): bool
+    {
+        return $this->student_count >= $this->max_students;
+    }
+
+    public function hasSpace(): bool
+    {
+        return $this->student_count < $this->max_students;
+    }
+
+    public function availableSlots(): int
+    {
+        return $this->max_students - $this->student_count;
+    }
+
+    public function incrementStudentCount(): void
+    {
+        $this->increment('student_count');
+    }
+
+    public function decrementStudentCount(): void
+    {
+        if ($this->student_count > 0) {
+            $this->decrement('student_count');
+        }
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($classe) {
+            $classe->updateStudentCount();
+        });
+
+        static::updated(function ($classe) {
+            if ($classe->isDirty('classe_id')) {
+                // Handle class change logic if needed
+            }
+        });
+    }
+
+    public function updateStudentCount(): void
+    {
+        $this->student_count = $this->etudiants()->count();
+        $this->save();
     }
 }

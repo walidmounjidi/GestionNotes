@@ -53,6 +53,16 @@ class EtudiantController extends Controller
             'classe_id' => 'nullable|exists:classes,id',
         ]);
 
+        // Check class capacity if a class is selected
+        if ($request->classe_id) {
+            $classe = Classe::findOrFail($request->classe_id);
+            if ($classe->isFull()) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['classe_id' => "La classe '{$classe->libelle}' est complète ({$classe->student_count}/{$classe->max_students} étudiants)."]);
+            }
+        }
+
         $email = Utilisateur::generateStudentEmail();
         $password = Utilisateur::generateSecurePassword();
 
@@ -79,6 +89,12 @@ class EtudiantController extends Controller
             'prenom_arabe' => $request->prenom_arabe,
             'classe_id' => $request->classe_id,
         ]);
+
+        // Update class student count if student is assigned to a class
+        if ($request->classe_id) {
+            $classe = Classe::find($request->classe_id);
+            $classe->incrementStudentCount();
+        }
 
         return redirect()->route('etudiants.index')->with([
             'success' => 'Étudiant créé avec succès.',
@@ -117,10 +133,24 @@ class EtudiantController extends Controller
             'classe_id' => 'nullable|exists:classes,id',
         ]);
 
+        // Check class capacity if changing to a different class
+        if ($request->classe_id && $request->classe_id != $etudiant->classe_id) {
+            $classe = Classe::findOrFail($request->classe_id);
+            if ($classe->isFull()) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['classe_id' => "La classe '{$classe->libelle}' est complète ({$classe->student_count}/{$classe->max_students} étudiants)."]);
+            }
+        }
+
         $etudiant->utilisateur->update([
             'nom' => $request->nom,
             'prenom' => $request->prenom,
         ]);
+
+        // Handle class changes for student count tracking
+        $oldClasseId = $etudiant->classe_id;
+        $newClasseId = $request->classe_id;
 
         $etudiant->update([
             'matricule' => $request->matricule,
@@ -132,6 +162,18 @@ class EtudiantController extends Controller
             'classe_id' => $request->classe_id,
         ]);
 
+        // Update student counts for affected classes
+        if ($oldClasseId != $newClasseId) {
+            if ($oldClasseId) {
+                $oldClasse = Classe::find($oldClasseId);
+                $oldClasse->decrementStudentCount();
+            }
+            if ($newClasseId) {
+                $newClasse = Classe::find($newClasseId);
+                $newClasse->incrementStudentCount();
+            }
+        }
+
         return redirect()->route('etudiants.index')->with('success', 'Étudiant mis à jour avec succès');
     }
 
@@ -142,9 +184,14 @@ class EtudiantController extends Controller
             abort(403, 'Accès non autorisé. Vous n\'avez pas la permission de supprimer des étudiants.');
         }
 
-        $utilisateur = $etudiant->utilisateur;
+        // Update class student count before deletion
+        if ($etudiant->classe_id) {
+            $classe = Classe::find($etudiant->classe_id);
+            $classe->decrementStudentCount();
+        }
+
+        $etudiant->utilisateur()->delete();
         $etudiant->delete();
-        $utilisateur->delete();
 
         return redirect()->route('etudiants.index')->with('success', 'Étudiant supprimé avec succès');
     }

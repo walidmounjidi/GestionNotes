@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('matieres', \App\Http\Controllers\MatiereController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::resource('specializations', SpecializationController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::resource('levels', LevelController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
-        Route::resource('classes', \App\Http\Controllers\ClasseController::class)->parameters(['classes' => 'classe'])->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
+        Route::resource('classes', \App\Http\Controllers\Classe\ClasseController::class)->parameters(['classes' => 'classe'])->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::post('/admin/assignSubject', [\App\Http\Controllers\Dashboard\AdminController::class, 'assignSubject'])->name('admin.assignSubject');
         Route::post('/admin/remove-subject', [\App\Http\Controllers\Dashboard\AdminController::class, 'removeSubject'])->name('admin.removeSubject');
     });
