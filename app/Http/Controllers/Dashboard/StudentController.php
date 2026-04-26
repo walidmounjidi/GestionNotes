@@ -26,6 +26,7 @@ class StudentController extends Controller
                 'moyenne_generale' => null,
                 'progressIndicator' => null,
                 'upcomingEvaluations' => collect(),
+                'gradeTable' => collect(),
                 'error' => 'Profil étudiant non trouvé. Veuillez contacter l\'administrateur.',
             ]);
         }
@@ -80,13 +81,47 @@ class StudentController extends Controller
                 ->get();
         }
 
+        $evalTypes = ['test_1', 'test_2', 'test_3', 'examen_final'];
+        $gradeTable = [];
+
+        if ($etudiant->classe_id && $etudiant->classe) {
+            foreach ($etudiant->classe->matieres as $matiere) {
+                $row = ['matiere' => $matiere, 'notes' => [], 'moyenne' => null];
+                $notesForAvg = [];
+
+                foreach ($evalTypes as $type) {
+                    $evaluation = Evaluation::where('matiere_id', $matiere->id)
+                        ->where('classe_id', $etudiant->classe_id)
+                        ->where('type', $type)
+                        ->first();
+
+                    if ($evaluation) {
+                        $note = $myNotes->where('evaluation_id', $evaluation->id)->first();
+                        $row['notes'][$type] = $note ? $note->note : null;
+                        if ($note) {
+                            $notesForAvg[] = $note->note;
+                        }
+                    } else {
+                        $row['notes'][$type] = null;
+                    }
+                }
+
+                $row['moyenne'] = count($notesForAvg) > 0
+                    ? round(array_sum($notesForAvg) / count($notesForAvg), 2)
+                    : null;
+
+                $gradeTable[] = $row;
+            }
+        }
+
         return view('dashboard.student', compact(
             'etudiant',
             'myNotes',
             'mySubjects',
             'moyenne_generale',
             'progressIndicator',
-            'upcomingEvaluations'
+            'upcomingEvaluations',
+            'gradeTable'
         ));
     }
 

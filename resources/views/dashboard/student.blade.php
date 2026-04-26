@@ -70,7 +70,17 @@
                     <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
                         <div>
                             <span class="font-medium text-slate-700">{{ $eval->matiere->libelle ?? 'N/A' }}</span>
-                            <span class="text-sm text-slate-500 block">{{ $eval->type ?? '' }}</span>
+                            @php
+                                $typeLabels = [
+                                    'test_1' => 'Test 1',
+                                    'test_2' => 'Test 2',
+                                    'test_3' => 'Test 3',
+                                    'examen_final' => 'Examen Final',
+                                ];
+                            @endphp
+                            <span class="text-sm text-slate-500 block">
+                                {{ $typeLabels[$eval->type] ?? ucfirst(str_replace('_', ' ', $eval->type)) }}
+                            </span>
                         </div>
                         <span class="text-sm text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
                             {{ \Carbon\Carbon::parse($eval->date_evaluation)->format('d/m/Y') }}
@@ -81,41 +91,6 @@
             </div>
             @endif
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
-                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                    <h3 class="font-semibold text-slate-800">Mes Matières</h3>
-                </div>
-                <div class="p-4">
-                    @forelse($mySubjects as $subject)
-                    <div class="border border-slate-200 rounded-lg p-4 mb-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="font-medium text-slate-700">{{ $subject['matiere']->libelle }}</h4>
-                            <div class="text-right">
-                                @if($subject['average'])
-                                    <span class="text-lg font-bold {{ $subject['average'] >= 10 ? 'text-emerald-600' : 'text-red-500' }}">
-                                        {{ number_format($subject['average'], 2) }}/20
-                                    </span>
-                                @else
-                                    <span class="text-slate-400">-</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="text-sm text-slate-600">
-                            <span>{{ $subject['notes_count'] }} note(s)</span>
-                            @if($subject['average'])
-                                <span> - Moyenne: {{ number_format($subject['average'], 2) }}/20</span>
-                            @endif
-                        </div>
-                    </div>
-                    @empty
-                    <div class="text-center py-8 text-slate-400">
-                        Aucune matière assignée
-                    </div>
-                    @endforelse
-                </div>
-            </div>
-
-            <!-- Grades by Subject Table -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
                 <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                     <h3 class="font-semibold text-slate-800">Mes Notes par Matière</h3>
@@ -124,106 +99,82 @@
                     <table class="w-full">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Matière</th>
-                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">F1</th>
-                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">F2</th>
-                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">F3</th>
-                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Final</th>
-                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Moyenne</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    Matière
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    Test 1
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    Test 2
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    Test 3
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-indigo-500 uppercase tracking-wider">
+                                    Examen Final
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    Moyenne
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            @forelse($mySubjects as $subject)
-                            @php
-                                $notes = $myNotes->where('evaluation.matiere_id', $subject['matiere']->id);
-                                $f1 = $notes->where('evaluation.type', 'f1')->first()?->note;
-                                $f2 = $notes->where('evaluation.type', 'f2')->first()?->note;
-                                $f3 = $notes->where('evaluation.type', 'f3')->first()?->note;
-                                $final = $notes->where('evaluation.type', 'final')->first()?->note;
-                                $notesForAvg = array_filter([$f1, $f2, $f3, $final]);
-                                $moyenne = count($notesForAvg) > 0 ? array_sum($notesForAvg) / count($notesForAvg) : null;
-                            @endphp
+                            @forelse($gradeTable as $row)
                             <tr class="hover:bg-slate-50/50 transition-colors">
                                 <td class="px-4 py-3 text-sm font-medium text-slate-700">
-                                    {{ $subject['matiere']->libelle }}
+                                    {{ $row['matiere']->libelle }}
+                                    <span class="block text-xs text-slate-400 font-normal">
+                                        Coef. {{ $row['matiere']->coefficient }}
+                                    </span>
                                 </td>
-                                <td class="px-4 py-3 text-center">
-                                    @if($f1 !== null)
-                                        <span class="px-2 py-1 rounded text-sm font-medium {{ $f1 >= 10 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
-                                            {{ number_format($f1, 2) }}
-                                        </span>
-                                    @else
-                                        <span class="text-slate-300">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    @if($f2 !== null)
-                                        <span class="px-2 py-1 rounded text-sm font-medium {{ $f2 >= 10 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
-                                            {{ number_format($f2, 2) }}
-                                        </span>
-                                    @else
-                                        <span class="text-slate-300">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    @if($f3 !== null)
-                                        <span class="px-2 py-1 rounded text-sm font-medium {{ $f3 >= 10 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
-                                            {{ number_format($f3, 2) }}
-                                        </span>
-                                    @else
-                                        <span class="text-slate-300">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    @if($final !== null)
-                                        <span class="px-2 py-1 rounded text-sm font-medium {{ $final >= 10 ? 'bg-indigo-100 text-indigo-700' : 'bg-red-100 text-red-700' }}">
-                                            {{ number_format($final, 2) }}
-                                        </span>
-                                    @else
-                                        <span class="text-slate-300">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-center text-sm font-bold {{ $moyenne !== null && $moyenne >= 10 ? 'text-emerald-600' : ($moyenne !== null ? 'text-red-500' : 'text-slate-400') }}">
-                                    {{ $moyenne !== null ? number_format($moyenne, 2) : '-' }}
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="6" class="px-4 py-6 text-center text-sm text-slate-400">Aucune matière assignée</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                    <h3 class="font-semibold text-slate-800">Mes Notes</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-slate-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Matière</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Type</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Note</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @forelse($myNotes as $note)
-                            <tr class="hover:bg-slate-50/50 transition-colors">
-                                <td class="px-4 py-3 text-sm text-slate-700">{{ $note->evaluation->matiere->libelle ?? 'N/A' }}</td>
-                                <td class="px-4 py-3 text-sm text-slate-500">{{ $note->evaluation->type ?? 'N/A' }}</td>
-                                <td class="px-4 py-3 text-sm font-bold {{ ($note->note ?? 0) >= 10 ? 'text-emerald-600' : 'text-red-500' }}">
-                                    {{ $note->note }}/20
+                                @foreach(['test_1', 'test_2', 'test_3'] as $type)
+                                <td class="px-4 py-3 text-center">
+                                    @if($row['notes'][$type] !== null)
+                                        <span class="px-2.5 py-1 rounded-lg text-sm font-semibold
+                                            {{ $row['notes'][$type] >= 10
+                                                ? 'bg-emerald-100 text-emerald-700'
+                                                : 'bg-red-100 text-red-700' }}">
+                                            {{ number_format($row['notes'][$type], 2) }}
+                                        </span>
+                                    @else
+                                        <span class="text-slate-300 text-sm">—</span>
+                                    @endif
                                 </td>
-                                <td class="px-4 py-3 text-sm text-slate-500">{{ $note->created_at->format('d/m/Y') }}</td>
+                                @endforeach
+
+                                <td class="px-4 py-3 text-center">
+                                    @if($row['notes']['examen_final'] !== null)
+                                        <span class="px-2.5 py-1 rounded-lg text-sm font-semibold
+                                            {{ $row['notes']['examen_final'] >= 10
+                                                ? 'bg-indigo-100 text-indigo-700'
+                                                : 'bg-red-100 text-red-700' }}">
+                                            {{ number_format($row['notes']['examen_final'], 2) }}
+                                        </span>
+                                    @else
+                                        <span class="text-slate-300 text-sm">—</span>
+                                    @endif
+                                </td>
+
+                                <td class="px-4 py-3 text-center">
+                                    @if($row['moyenne'] !== null)
+                                        <span class="text-sm font-bold
+                                            {{ $row['moyenne'] >= 10
+                                                ? 'text-emerald-600'
+                                                : 'text-red-500' }}">
+                                            {{ number_format($row['moyenne'], 2) }}/20
+                                        </span>
+                                    @else
+                                        <span class="text-slate-300 text-sm">—</span>
+                                    @endif
+                                </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-400">Aucune note</td>
+                                <td colspan="6" class="px-4 py-8 text-center text-sm text-slate-400">
+                                    Aucune matière assignée à votre classe
+                                </td>
                             </tr>
                             @endforelse
                         </tbody>
