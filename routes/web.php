@@ -45,6 +45,8 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:student')->group(function () {
         Route::get('/dashboard/student', [\App\Http\Controllers\Dashboard\StudentController::class, 'index'])->name('dashboard.student');
+        Route::get('/bulletin', [\App\Http\Controllers\Dashboard\StudentController::class, 'bulletin'])->name('student.bulletin');
+        Route::get('/schedule', [\App\Http\Controllers\Dashboard\StudentController::class, 'schedule'])->name('student.schedule');
     });
 });
 

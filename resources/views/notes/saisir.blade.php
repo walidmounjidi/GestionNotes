@@ -34,7 +34,7 @@
             <!-- Grades Form -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <form method="POST" action="{{ route('notes.store', $evaluation->id) }}">
+                    <form method="POST" action="{{ route('notes.storeSaisir', $evaluation->id) }}">
                         @csrf
                         
                         <div class="overflow-x-auto">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Evaluation;
 use App\Models\Note;
+use App\Models\Classe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -72,6 +73,8 @@ class TeacherController extends Controller
             ->take(5)
             ->get();
 
+        $evaluationsCalendar = $this->getEvaluationsCalendar($user, $assignedClasses);
+
         return view('dashboard.teacher', compact(
             'stats',
             'assignedClasses',
@@ -79,8 +82,27 @@ class TeacherController extends Controller
             'studentsByClass',
             'availableEvaluations',
             'upcomingEvaluations',
-            'recentNotes'
+            'recentNotes',
+            'evaluationsCalendar'
         ));
+    }
+
+    private function getEvaluationsCalendar($user, $assignedClasses)
+    {
+        $startDate = now()->startOfMonth()->subWeek();
+        $endDate = now()->endOfMonth()->addWeek();
+
+        return Evaluation::with(['matiere', 'classe'])
+            ->where(function ($query) use ($user, $assignedClasses) {
+                $query->whereHas('classe.teachers', function ($q) use ($user) {
+                    $q->where('utilisateur_id', $user->id);
+                })
+                    ->orWhereIn('classe_id', $assignedClasses->pluck('id'));
+            })
+            ->whereBetween('date_evaluation', [$startDate, $endDate])
+            ->orderBy('date_evaluation')
+            ->get()
+            ->groupBy(fn($e) => $e->date_evaluation->format('Y-m-d'));
     }
 
     public function updateGrades(Request $request)

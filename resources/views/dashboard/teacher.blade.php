@@ -117,18 +117,29 @@
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <h3 class="font-semibold text-slate-800 mb-4">Notes récentes</h3>
-                    @forelse($recentNotes as $note)
-                    <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
-                        <div>
-                            <span class="font-medium text-slate-700">{{ $note->etudiant->utilisateur->nom ?? '' }} {{ $note->etudiant->utilisateur->prenom ?? '' }}</span>
-                            <span class="text-sm text-slate-500 block">{{ $note->evaluation->matiere->libelle ?? 'N/A' }}</span>
+                    <h3 class="font-semibold text-slate-800 mb-4">Calendrier des Évaluations</h3>
+                    @if(isset($evaluationsCalendar) && $evaluationsCalendar->count() > 0)
+                        <div class="space-y-3">
+                            @foreach($evaluationsCalendar as $date => $evaluations)
+                                <div class="border-l-4 border-indigo-500 pl-4">
+                                    <div class="text-sm font-semibold text-slate-700 mb-2">
+                                        {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
+                                    </div>
+                                    @foreach($evaluations as $eval)
+                                        <div class="flex items-center justify-between py-2 bg-slate-50 rounded-lg px-3 mb-1">
+                                            <span class="text-sm text-slate-600">{{ $eval->matiere->libelle ?? 'N/A' }}</span>
+                                            <span class="text-xs text-slate-500">{{ $eval->classe->libelle ?? 'N/A' }}</span>
+                                            <span class="px-2 py-0.5 text-xs rounded-full {{ $eval->type === 'examen' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
+                                                {{ ucfirst($eval->type) }}
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endforeach
                         </div>
-                        <span class="font-semibold text-emerald-600">{{ number_format($note->note, 2) }}/20</span>
-                    </div>
-                    @empty
-                    <p class="text-sm text-slate-400">Aucune note récente</p>
-                    @endforelse
+                    @else
+                        <p class="text-sm text-slate-400">Aucune évaluation prévue ce mois</p>
+                    @endif
                 </div>
             </div>
 

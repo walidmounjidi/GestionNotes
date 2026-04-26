@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Etudiant;
 use App\Models\Classe;
 use App\Models\Utilisateur;
-use App\Models\Specialization;
 use App\Models\Matiere;
+use App\Models\Note;
+use App\Models\Evaluation;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -21,6 +22,10 @@ class AdminController extends Controller
             'total_students' => Etudiant::count(),
             'total_classes' => Classe::count(),
         ];
+
+        $stats['success_rate_global'] = $this->calculateGlobalSuccessRate();
+        $stats['success_rates_by_class'] = $this->calculateSuccessRateByClass();
+        $stats['success_rates_by_subject'] = $this->calculateSuccessRateBySubject();
 
         // Get class capacity information
         $classes = Classe::with(['level', 'specialization'])
@@ -43,6 +48,48 @@ class AdminController extends Controller
             });
 
         return view('dashboard.admin', compact('stats', 'classes'));
+    }
+
+    private function calculateGlobalSuccessRate(): float
+    {
+        $totalNotes = Note::whereHas('evaluation', fn($q) => $q->where('note_max', 20))->count();
+        if ($totalNotes === 0) {
+            return 0;
+        }
+        $successNotes = Note::whereHas('evaluation', fn($q) => $q->where('note_max', 20))
+            ->where('note', '>=', 10)
+            ->count();
+        return round(($successNotes / $totalNotes) * 100, 1);
+    }
+
+    private function calculateSuccessRateByClass(): array
+    {
+        return Classe::with('etudiants')->get()->map(function ($classe) {
+            $notes = Note::whereHas('evaluation', fn($q) => $q->where('classe_id', $classe->id))->get();
+            $total = $notes->count();
+            $success = $notes->where('note', '>=', 10)->count();
+            return [
+                'classe_id' => $classe->id,
+                'classe_name' => $classe->libelle,
+                'total_notes' => $total,
+                'success_rate' => $total > 0 ? round(($success / $total) * 100, 1) : 0,
+            ];
+        })->filter(fn($item) => $item['total_notes'] > 0)->values()->toArray();
+    }
+
+    private function calculateSuccessRateBySubject(): array
+    {
+        return \App\Models\Matiere::with('evaluations')->get()->map(function ($matiere) {
+            $notes = Note::whereHas('evaluation', fn($q) => $q->where('matiere_id', $matiere->id))->get();
+            $total = $notes->count();
+            $success = $notes->where('note', '>=', 10)->count();
+            return [
+                'matiere_id' => $matiere->id,
+                'matiere_name' => $matiere->libelle,
+                'total_notes' => $total,
+                'success_rate' => $total > 0 ? round(($success / $total) * 100, 1) : 0,
+            ];
+        })->filter(fn($item) => $item['total_notes'] > 0)->values()->toArray();
     }
 
     public function assignSubject(Request $request)

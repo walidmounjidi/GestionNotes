@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Etudiant;
 use App\Models\Evaluation;
 use App\Models\Note;
+use App\Models\Classe;
+use App\Models\Matiere;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -85,5 +88,111 @@ class StudentController extends Controller
             'progressIndicator',
             'upcomingEvaluations'
         ));
+    }
+
+    public function bulletin()
+    {
+        $user = Auth::user();
+        $etudiant = $user->etudiant;
+
+        if (! $etudiant) {
+            return view('dashboard.bulletin', [
+                'etudiant' => null,
+                'bulletinData' => collect(),
+                'moyenne_generale' => null,
+                'classRanking' => null,
+            ]);
+        }
+
+        $etudiant->load('classe.matieres');
+        $classe = $etudiant->classe;
+
+        $matieres = $classe ? $classe->matieres : collect();
+
+        $bulletinData = $matieres->map(function ($matiere) use ($etudiant) {
+            $notes = Note::where('etudiant_id', $etudiant->id)
+                ->whereHas('evaluation', fn($q) => $q->where('matiere_id', $matiere->id))
+                ->with('evaluation')
+                ->get();
+
+            $sumWeightedNotes = 0;
+            $sumCoefficients = 0;
+            $totalNotes = $notes->count();
+
+            foreach ($notes as $note) {
+                $coefficient = $note->evaluation->coefficient ?? 1;
+                $sumWeightedNotes += $note->note * $coefficient;
+                $sumCoefficients += $coefficient;
+            }
+
+            $average = $sumCoefficients > 0 ? round($sumWeightedNotes / $sumCoefficients, 2) : null;
+
+            return [
+                'matiere' => $matiere,
+                'average' => $average,
+                'total_notes' => $totalNotes,
+                'coefficient' => $matiere->coefficient ?? 1,
+            ];
+        });
+
+        $moyenne_generale = $bulletinData->whereNotNull('average')->count() > 0
+            ? round($bulletinData->whereNotNull('average')->avg('average'), 2)
+            : null;
+
+        $classRanking = null;
+        if ($classe && $moyenne_generale !== null) {
+            $classStudents = $classe->etudiants()->with('utilisateur')->get();
+            $rankedStudents = $classStudents->map(function ($student) {
+                $notes = Note::where('etudiant_id', $student->id)->get();
+                return [
+                    'etudiant' => $student,
+                    'average' => $notes->avg('note') ?? 0,
+                ];
+            })->sortByDesc('average')->values();
+
+            $studentRank = $rankedStudents->search(fn($item) => $item['etudiant']->id === $etudiant->id);
+            $classRanking = [
+                'rank' => $studentRank !== false ? $studentRank + 1 : null,
+                'total' => $rankedStudents->count(),
+            ];
+        }
+
+        return view('dashboard.bulletin', compact(
+            'etudiant',
+            'bulletinData',
+            'moyenne_generale',
+            'classRanking'
+        ));
+    }
+
+    public function schedule()
+    {
+        $user = Auth::user();
+        $etudiant = $user->etudiant;
+
+        if (! $etudiant) {
+            return view('dashboard.schedule', [
+                'etudiant' => null,
+                'scheduleData' => collect(),
+            ]);
+        }
+
+        $etudiant->load('classe.matieres.evaluations');
+        $classe = $etudiant->classe;
+
+        $evaluations = collect();
+        if ($classe) {
+            $evaluations = Evaluation::where('classe_id', $classe->id)
+                ->where('date_evaluation', '>', now())
+                ->with('matiere')
+                ->orderBy('date_evaluation')
+                ->get()
+                ->groupBy(fn($e) => $e->date_evaluation->format('Y-m-d'));
+        }
+
+        return view('dashboard.schedule', [
+            'etudiant' => $etudiant,
+            'scheduleData' => $evaluations
+        ]);
     }
 }
