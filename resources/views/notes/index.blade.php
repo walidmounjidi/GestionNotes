@@ -8,23 +8,31 @@
     </x-slot>
 
     <div class="py-8">
+        @php
+        $typeLabels = [
+            'test_1' => 'Test 1',
+            'test_2' => 'Test 2',
+            'test_3' => 'Test 3',
+            'examen_final' => 'Examen Final',
+        ];
+        @endphp
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                 <div class="bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl p-6 shadow-lg shadow-rose-500/25 text-white">
                     <p class="text-rose-100 text-sm font-medium">Total Notes</p>
-                    <p class="text-3xl font-bold mt-1">{{ \App\Models\Note::count() }}</p>
+                    <p class="text-3xl font-bold mt-1">{{ $stats['total'] }}</p>
                 </div>
                 <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 shadow-lg shadow-blue-500/25 text-white">
                     <p class="text-blue-100 text-sm font-medium">Moyenne Générale</p>
-                    <p class="text-3xl font-bold mt-1">{{ number_format(\App\Models\Note::avg('note'), 2) }}/20</p>
+                    <p class="text-3xl font-bold mt-1">{{ number_format($stats['moyenne'], 2) }}/20</p>
                 </div>
                 <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 shadow-lg shadow-emerald-500/25 text-white">
                     <p class="text-emerald-100 text-sm font-medium">Notes Validées</p>
-                    <p class="text-3xl font-bold mt-1">{{ \App\Models\Note::where('note', '>=', 10)->count() }}</p>
+                    <p class="text-3xl font-bold mt-1">{{ $stats['validees'] }}</p>
                 </div>
                 <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 shadow-lg shadow-red-500/25 text-white">
                     <p class="text-red-100 text-sm font-medium">Notes Non Validées</p>
-                    <p class="text-3xl font-bold mt-1">{{ \App\Models\Note::where('note', '<', 10)->count() }}</p>
+                    <p class="text-3xl font-bold mt-1">{{ $stats['non_valides'] }}</p>
                 </div>
             </div>
 
@@ -70,7 +78,7 @@
                                     {{ $note->evaluation->matiere->libelle }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                    {{ $note->evaluation->type }}
+                                    {{ $typeLabels[$note->evaluation->type ?? ''] ?? ($note->evaluation->description ?? 'N/A') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold {{ $note->note >= 10 ? 'text-emerald-600' : 'text-red-500' }}">
                                     {{ $note->note }}/20

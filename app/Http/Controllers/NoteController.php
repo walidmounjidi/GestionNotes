@@ -12,23 +12,46 @@ class NoteController extends Controller
 {
     public function index(Request $request)
     {
+        /** @var \App\Models\Utilisateur $user */
+        $user = Auth::user();
+
         $query = Note::with(['etudiant.utilisateur', 'evaluation.matiere']);
-        
+
+        if ($user->isTeacher() && !$user->isAdmin()) {
+            $query->whereHas('evaluation',
+                fn($q) => $q->where('created_by', $user->id)
+            );
+        }
+
         if ($request->classe_id) {
             $query->whereHas('evaluation.classe', function ($q) use ($request) {
                 $q->where('id', $request->classe_id);
             });
         }
-        
+
         if ($request->matiere_id) {
             $query->whereHas('evaluation.matiere', function ($q) use ($request) {
                 $q->where('id', $request->matiere_id);
             });
         }
-        
+
         $notes = $query->orderBy('created_at', 'desc')->paginate(15);
-        
-        return view('notes.index', compact('notes'));
+
+        $statsQuery = Note::query();
+        if ($user->isTeacher() && !$user->isAdmin()) {
+            $statsQuery->whereHas('evaluation',
+                fn($q) => $q->where('created_by', $user->id)
+            );
+        }
+
+        $stats = [
+            'total'      => (clone $statsQuery)->count(),
+            'moyenne'    => (clone $statsQuery)->avg('note') ?? 0,
+            'validees'   => (clone $statsQuery)->where('note', '>=', 10)->count(),
+            'non_valides'=> (clone $statsQuery)->where('note', '<', 10)->count(),
+        ];
+
+        return view('notes.index', compact('notes', 'stats'));
     }
 
     public function create()

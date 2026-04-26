@@ -126,7 +126,7 @@ class TeacherController extends Controller
         )->get();
 
         if ($relevantMatieres->isEmpty()) {
-            $relevantMatieres = $user->subjects()->get();
+            $relevantMatieres = $user->subjects()->orderBy('libelle')->get();
         }
 
         $evalTypes = ['test_1', 'test_2', 'test_3', 'examen_final'];
@@ -135,10 +135,15 @@ class TeacherController extends Controller
         foreach ($relevantMatieres as $matiere) {
             $evals = [];
             foreach ($evalTypes as $type) {
-                $evals[$type] = Evaluation::where('classe_id', $classe->id)
+                $evalQuery = Evaluation::where('classe_id', $classe->id)
                     ->where('matiere_id', $matiere->id)
-                    ->where('type', $type)
-                    ->first();
+                    ->where('type', $type);
+
+                if ($type !== 'examen_final') {
+                    $evalQuery->where('created_by', $user->id);
+                }
+
+                $evals[$type] = $evalQuery->first();
             }
             $evaluationsByMatiere[$matiere->id] = [
                 'matiere' => $matiere,
