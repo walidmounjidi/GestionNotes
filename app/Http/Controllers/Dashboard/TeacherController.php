@@ -75,6 +75,18 @@ class TeacherController extends Controller
 
         $evaluationsCalendar = $this->getEvaluationsCalendar($user, $assignedClasses);
 
+        $colleagues = \App\Models\Utilisateur::whereHas('roles', function ($q) {
+            $q->where('code', 'teacher');
+        })
+        ->whereHas('classes', function ($q) use ($assignedClasses) {
+            $q->whereIn('classes.id', $assignedClasses->pluck('id'));
+        })
+        ->where('id', '!=', $user->id)
+        ->with(['classes' => function ($q) use ($assignedClasses) {
+            $q->whereIn('classes.id', $assignedClasses->pluck('id'));
+        }])
+        ->get();
+
         return view('dashboard.teacher', compact(
             'stats',
             'assignedClasses',
@@ -83,7 +95,8 @@ class TeacherController extends Controller
             'availableEvaluations',
             'upcomingEvaluations',
             'recentNotes',
-            'evaluationsCalendar'
+            'evaluationsCalendar',
+            'colleagues'
         ));
     }
 

@@ -82,6 +82,11 @@ class Utilisateur extends Authenticatable
             ->withPivot('classe_id');
     }
 
+    public function subjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Matiere::class, 'teacher_subject');
+    }
+
     public function matiereClasses(): HasMany
     {
         return $this->hasMany(\App\Models\TeacherMatiere::class, 'utilisateur_id');

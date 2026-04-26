@@ -31,14 +31,21 @@
                             </div>
 
                             <div class="md:col-span-2">
-                                <x-input-label for="specializations" :value="__('Spécialisations')" />
-                                <select id="specializations" name="specializations[]" multiple class="block mt-1 w-full border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                    @foreach($specializations as $spec)
-                                    <option value="{{ $spec->id }}">{{ $spec->libelle }}</option>
+                                <x-input-label for="subjects" :value="__('Matières enseignées')" />
+                                <select id="subjects" name="subjects[]" multiple
+                                        class="block mt-1 w-full border-slate-200 rounded-lg
+                                               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        size="6">
+                                    @foreach($matieres as $matiere)
+                                    <option value="{{ $matiere->id }}">
+                                        {{ $matiere->libelle }} (Coef. {{ $matiere->coefficient }})
+                                    </option>
                                     @endforeach
                                 </select>
-                                <p class="text-xs text-slate-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs spécialisations</p>
-                                <x-input-error :messages="$errors->get('specializations')" class="mt-2" />
+                                <p class="text-xs text-slate-500 mt-1">
+                                    Maintenez Ctrl/Cmd pour sélectionner plusieurs matières
+                                </p>
+                                <x-input-error :messages="$errors->get('subjects')" class="mt-2" />
                             </div>
 
                             <div class="md:col-span-2">

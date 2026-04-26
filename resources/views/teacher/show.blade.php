@@ -30,8 +30,8 @@
                             <span class="font-semibold text-slate-700">{{ $teacher->classes->count() }}</span>
                         </div>
                         <div class="flex justify-between items-center py-2 border-b border-slate-100">
-                            <span class="text-sm text-slate-500">Spécialisations</span>
-                            <span class="font-semibold text-slate-700">{{ $teacher->specializations->count() }}</span>
+                            <span class="text-sm text-slate-500">Matières</span>
+                            <span class="font-semibold text-slate-700">{{ $teacher->subjects->count() }}</span>
                         </div>
                         <div class="flex justify-between items-center py-2">
                             <span class="text-sm text-slate-500">Matières assignées</span>
@@ -41,13 +41,13 @@
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <h3 class="font-semibold text-slate-800 mb-4">Spécialisations</h3>
-                    @forelse($teacher->specializations as $spec)
+                    <h3 class="font-semibold text-slate-800 mb-4">Matières enseignées</h3>
+                    @forelse($teacher->subjects as $subject)
                         <span class="inline-block px-3 py-1 text-sm bg-violet-100 text-violet-700 rounded-full mr-2 mb-2">
-                            {{ $spec->libelle }}
+                            {{ $subject->libelle }}
                         </span>
                     @empty
-                        <p class="text-sm text-slate-400">Aucune spécialisation assignée</p>
+                        <p class="text-sm text-slate-400">Aucune matière assignée</p>
                     @endforelse
                 </div>
 

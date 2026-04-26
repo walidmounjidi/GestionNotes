@@ -56,7 +56,7 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Professeur</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Spécialisations</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Matières</th>
                                 <th class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Classes</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Mot de passe</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
@@ -77,9 +77,9 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{{ $teacher->email }}</td>
                                 <td class="px-6 py-4">
-                                    @forelse($teacher->specializations as $spec)
+                                    @forelse($teacher->subjects as $subject)
                                         <span class="inline-block px-2 py-0.5 text-xs bg-violet-100 text-violet-700 rounded-full mb-1">
-                                            {{ $spec->libelle }}
+                                            {{ $subject->libelle }}
                                         </span>
                                     @empty
                                         <span class="text-slate-400 text-sm">Aucune</span>

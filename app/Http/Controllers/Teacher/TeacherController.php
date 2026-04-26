@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\Classe;
-use App\Models\Specialization;
 use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,17 +32,17 @@ class TeacherController extends Controller
     {
         $teachers = Utilisateur::whereHas('roles', function ($q) {
             $q->where('code', 'teacher');
-        })->with(['specializations', 'classes'])->get();
+        })->with(['subjects', 'classes'])->get();
 
         return view('teacher.index', compact('teachers'));
     }
 
     public function create()
     {
-        $specializations = Specialization::all();
+        $matieres = \App\Models\Matiere::orderBy('libelle')->get();
         $classes = Classe::with(['specialization', 'level'])->get();
 
-        return view('teacher.create', compact('specializations', 'classes'));
+        return view('teacher.create', compact('matieres', 'classes'));
     }
 
     public function store(Request $request)
@@ -51,7 +50,7 @@ class TeacherController extends Controller
         $request->validate([
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'specializations' => 'array',
+            'subjects' => 'array',
             'classes' => 'array',
         ]);
 
@@ -74,8 +73,8 @@ class TeacherController extends Controller
             $teacher->roles()->sync([$teacherRole->id]);
         }
 
-        if ($request->has('specializations')) {
-            $teacher->specializations()->sync($request->specializations);
+        if ($request->has('subjects') && !empty($request->subjects)) {
+            $teacher->subjects()->sync($request->subjects);
         }
 
         if ($request->has('classes')) {
@@ -93,18 +92,18 @@ class TeacherController extends Controller
 
     public function show(Utilisateur $teacher)
     {
-        $teacher->load(['specializations', 'classes.etudiants']);
+        $teacher->load(['subjects', 'classes.etudiants']);
 
         return view('teacher.show', compact('teacher'));
     }
 
     public function edit(Utilisateur $teacher)
     {
-        $specializations = Specialization::all();
+        $matieres = \App\Models\Matiere::orderBy('libelle')->get();
         $classes = Classe::with(['specialization', 'level'])->get();
-        $teacher->load(['specializations', 'classes']);
+        $teacher->load(['subjects', 'classes']);
 
-        return view('teacher.edit', compact('teacher', 'specializations', 'classes'));
+        return view('teacher.edit', compact('teacher', 'matieres', 'classes'));
     }
 
     public function update(Request $request, Utilisateur $teacher)
@@ -112,14 +111,14 @@ class TeacherController extends Controller
         $request->validate([
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'specializations' => 'array',
+            'subjects' => 'array',
             'classes' => 'array',
         ]);
 
         $teacher->update($request->only(['nom', 'prenom']));
 
-        if ($request->has('specializations')) {
-            $teacher->specializations()->sync($request->specializations);
+        if ($request->has('subjects')) {
+            $teacher->subjects()->sync($request->subjects ?? []);
         }
 
         if ($request->has('classes')) {

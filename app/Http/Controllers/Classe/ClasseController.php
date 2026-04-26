@@ -7,7 +7,9 @@ use App\Models\Classe;
 use App\Models\Specialization;
 use App\Models\Level;
 use App\Models\Utilisateur;
+use App\Models\Matiere;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ClasseController extends Controller
 {
@@ -59,8 +61,12 @@ class ClasseController extends Controller
 
     public function show(Classe $classe)
     {
-        $classe->load(['specialization', 'level', 'etudiants.utilisateur', 'teachers']);
-        return view('classes.show', compact('classe'));
+        $classe->load(['specialization', 'level', 'etudiants.utilisateur', 'teachers', 'matieres']);
+        $assignedMatiereIds = $classe->matieres->pluck('id');
+        $availableMatieres = Matiere::whereNotIn('id', $assignedMatiereIds)
+                                        ->orderBy('libelle')
+                                        ->get();
+        return view('classes.show', compact('classe', 'availableMatieres'));
     }
 
     public function edit(Classe $classe)
@@ -92,5 +98,24 @@ class ClasseController extends Controller
         $classe->delete();
 
         return redirect()->route('classes.index')->with('success', 'Classe supprimée avec succès.');
+    }
+
+    public function assignMatiere(Request $request, Classe $classe)
+    {
+        $request->validate([
+            'matiere_ids' => 'required|array',
+            'matiere_ids.*' => 'exists:matieres,id',
+        ]);
+
+        $classe->matieres()->syncWithoutDetaching($request->matiere_ids);
+
+        return redirect()->route('classes.show', $classe->id)->with('success', 'Matière(s) assignée(s) avec succès.');
+    }
+
+    public function removeMatiere(Request $request, Classe $classe, Matiere $matiere)
+    {
+        $classe->matieres()->detach($matiere->id);
+
+        return redirect()->route('classes.show', $classe->id)->with('success', 'Matière retirée avec succès.');
     }
 }

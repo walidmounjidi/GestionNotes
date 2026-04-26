@@ -79,19 +79,30 @@
 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                        <h3 class="font-semibold text-slate-800">Matières Assignées</h3>
+                        <h3 class="font-semibold text-slate-800">Professeurs</h3>
                     </div>
                     <div class="space-y-4 p-4">
-                        @forelse($assignedMatieres as $tm)
+                        @forelse($colleagues as $colleague)
                         <div class="border border-slate-200 rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-medium text-slate-700">{{ $tm->matiere->libelle ?? 'N/A' }}</h4>
-                                <span class="text-sm text-slate-500">{{ $tm->classe->libelle ?? 'N/A' }}</span>
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <span class="text-sm font-semibold text-indigo-600">
+                                        {{ substr($colleague->prenom, 0, 1) }}{{ substr($colleague->nom, 0, 1) }}
+                                    </span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-medium text-slate-700 truncate">
+                                        {{ $colleague->nom }} {{ $colleague->prenom }}
+                                    </h4>
+                                    <p class="text-xs text-slate-500 truncate">
+                                        {{ $colleague->classes->map(fn($c) => $c->libelle)->join(', ') }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                         @empty
                         <div class="text-center py-8 text-slate-400">
-                            Aucune matière assignée
+                            Aucun autre professeur dans vos classes
                         </div>
                         @endforelse
                     </div>
