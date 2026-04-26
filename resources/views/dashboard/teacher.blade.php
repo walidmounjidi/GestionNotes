@@ -52,57 +52,65 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                         <h3 class="font-semibold text-slate-800">Classes Assignées</h3>
                     </div>
-                    <div class="space-y-4 p-4">
+                    <div class="space-y-3 p-4">
                         @forelse($assignedClasses as $classe)
-                        <div class="border border-slate-200 rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-2">
+                        <a href="{{ route('teacher.classe.detail', $classe->id) }}"
+                           class="block border border-slate-200 rounded-lg p-4
+                                  hover:border-indigo-300 hover:bg-indigo-50/30
+                                  transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between">
                                 <div>
-                                    <h4 class="font-medium text-slate-700">{{ $classe->libelle }}</h4>
-                                    <span class="text-xs text-slate-500">{{ $classe->level->libelle ?? '' }} - {{ $classe->specialization->libelle ?? '' }}</span>
+                                    <h4 class="font-medium text-slate-700">
+                                        {{ $classe->libelle }}
+                                    </h4>
+                                    <span class="text-xs text-slate-500">
+                                        {{ $classe->level->libelle ?? '' }}
+                                        @if($classe->specialization)
+                                         — {{ $classe->specialization->libelle }}
+                                        @endif
+                                    </span>
                                 </div>
                                 <span class="inline-flex items-center justify-center w-8 h-8 bg-emerald-100 text-emerald-700 rounded-full font-semibold text-sm">
                                     {{ $classe->etudiants->count() }}
                                 </span>
                             </div>
-                        </div>
+                        </a>
                         @empty
-                        <div class="text-center py-8 text-slate-400">
+                        <div class="text-center py-8 text-slate-400 text-sm">
                             Aucune classe assignée
                         </div>
                         @endforelse
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                        <h3 class="font-semibold text-slate-800">Professeurs</h3>
+                        <h3 class="font-semibold text-slate-800">Mes Matières</h3>
                     </div>
-                    <div class="space-y-4 p-4">
-                        @forelse($colleagues as $colleague)
+                    <div class="space-y-3 p-4">
+                        @forelse($mySubjects as $subject)
                         <div class="border border-slate-200 rounded-lg p-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <span class="text-sm font-semibold text-indigo-600">
-                                        {{ substr($colleague->prenom, 0, 1) }}{{ substr($colleague->nom, 0, 1) }}
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-medium text-slate-700">
+                                        {{ $subject->libelle }}
+                                    </h4>
+                                    <span class="text-xs text-slate-500">
+                                        Coefficient {{ $subject->coefficient }}
                                     </span>
                                 </div>
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="font-medium text-slate-700 truncate">
-                                        {{ $colleague->nom }} {{ $colleague->prenom }}
-                                    </h4>
-                                    <p class="text-xs text-slate-500 truncate">
-                                        {{ $colleague->classes->map(fn($c) => $c->libelle)->join(', ') }}
-                                    </p>
-                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-700">
+                                    Coef. {{ $subject->coefficient }}
+                                </span>
                             </div>
                         </div>
                         @empty
-                        <div class="text-center py-8 text-slate-400">
-                            Aucun autre professeur dans vos classes
+                        <div class="text-center py-8 text-slate-400 text-sm">
+                            Aucune matière assignée
                         </div>
                         @endforelse
                     </div>

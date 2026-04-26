@@ -60,16 +60,25 @@
                                             {{ $etudiant->utilisateur->nom }} {{ $etudiant->utilisateur->prenom }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <input type="hidden" name="notes[{{ $loop->index }}][etudiant_id]" value="{{ $etudiant->id }}">
-                                            <x-text-input 
-                                                type="number" 
-                                                name="notes[{{ $loop->index }}][note]" 
-                                                value="{{ old('notes.'.$loop->index.'.note', $noteExistante->note ?? '') }}"
-                                                class="block w-24" 
-                                                min="0" 
-                                                max="{{ $evaluation->note_max }}" 
-                                                step="0.01"
-                                            />
+                                            @php
+                                                $isReadOnly = $evaluation->isReadOnly();
+                                            @endphp
+                                            @if($isReadOnly)
+                                                <span class="text-slate-500 font-medium">
+                                                    {{ $noteExistante->note ?? '-' }}
+                                                </span>
+                                            @else
+                                                <input type="hidden" name="notes[{{ $loop->index }}][etudiant_id]" value="{{ $etudiant->id }}">
+                                                <x-text-input 
+                                                    type="number" 
+                                                    name="notes[{{ $loop->index }}][note]" 
+                                                    value="{{ old('notes.'.$loop->index.'.note', $noteExistante->note ?? '') }}"
+                                                    class="block w-24" 
+                                                    min="0" 
+                                                    max="{{ $evaluation->note_max }}" 
+                                                    step="0.01"
+                                                />
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <x-text-input 

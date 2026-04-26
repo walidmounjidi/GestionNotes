@@ -8,7 +8,7 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                     <h3 class="font-semibold text-slate-800">Informations du professeur</h3>
@@ -31,41 +31,77 @@
                                 <x-input-error :messages="$errors->get('prenom')" class="mt-2" />
                             </div>
 
-                            <div>
+                            <div class="md:col-span-2">
                                 <x-input-label for="email" :value="__('Email')" />
                                 <x-text-input id="email" class="block mt-1 w-full bg-slate-100" type="email" name="email" :value="$teacher->email" readonly />
                                 <p class="text-xs text-slate-500 mt-1">L'email ne peut pas être modifié</p>
                             </div>
+                        </div>
 
-                            <div class="md:col-span-2">
-                                <x-input-label for="subjects" :value="__('Matières enseignées')" />
-                                <select id="subjects" name="subjects[]" multiple
-                                        class="block mt-1 w-full border-slate-200 rounded-lg
-                                               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        size="6">
-                                    @foreach($matieres as $matiere)
-                                    <option value="{{ $matiere->id }}"
-                                        {{ in_array($matiere->id, $teacher->subjects->pluck('id')->toArray()) ? 'selected' : '' }}>
-                                        {{ $matiere->libelle }} (Coef. {{ $matiere->coefficient }})
-                                    </option>
-                                    @endforeach
-                                </select>
-                                <p class="text-xs text-slate-500 mt-1">
-                                    Maintenez Ctrl/Cmd pour sélectionner plusieurs matières
-                                </p>
+                        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div x-data="{
+                                selectedSubjects: @js($teacher->subjects->pluck('id')->toArray()),
+                                get count() { return this.selectedSubjects.length; },
+                                selectAll() { this.selectedSubjects = @js($matieres->pluck('id')->toArray()); },
+                                clearAll() { this.selectedSubjects = []; }
+                            }">
+                                <div class="flex items-center justify-between mb-2">
+                                    <x-input-label for="subjects" :value="__('Matières enseignées')" />
+                                    <span class="text-xs text-indigo-600 font-semibold" x-show="count > 0" x-text="count + ' sélectionnée' + (count > 1 ? 's' : '')"></span>
+                                </div>
+                                <div class="flex gap-3 mb-3">
+                                    <button type="button" @click="selectAll()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Tout sélectionner</button>
+                                    <span class="text-slate-300">|</span>
+                                    <button type="button" @click="clearAll()" class="text-xs text-slate-500 hover:text-slate-700 font-medium">Tout effacer</button>
+                                </div>
+                                <div class="border border-slate-200 rounded-lg divide-y divide-slate-100 max-h-64 overflow-y-auto">
+                                    @forelse($matieres as $matiere)
+                                    <label class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 cursor-pointer transition-colors">
+                                        <input type="checkbox" 
+                                               name="subjects[]" 
+                                               value="{{ $matiere->id }}"
+                                               x-model="selectedSubjects"
+                                               class="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
+                                        <span class="text-sm text-slate-700">{{ $matiere->libelle }}</span>
+                                        <span class="text-xs text-slate-400 ml-auto">Coef. {{ $matiere->coefficient }}</span>
+                                    </label>
+                                    @empty
+                                    <div class="px-4 py-4 text-sm text-slate-400 text-center">Aucune matière disponible</div>
+                                    @endforelse
+                                </div>
                                 <x-input-error :messages="$errors->get('subjects')" class="mt-2" />
                             </div>
 
-                            <div class="md:col-span-2">
-                                <x-input-label for="classes" :value="__('Classes')" />
-                                <select id="classes" name="classes[]" multiple class="block mt-1 w-full border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                    @foreach($classes as $classe)
-                                    <option value="{{ $classe->id }}" {{ in_array($classe->id, $teacher->classes->pluck('id')->toArray()) ? 'selected' : '' }}>
-                                        {{ $classe->libelle }} ({{ $classe->level->libelle ?? 'N/A' }} - {{ $classe->specialization->libelle ?? 'N/A' }})
-                                    </option>
-                                    @endforeach
-                                </select>
-                                <p class="text-xs text-slate-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs classes</p>
+                            <div x-data="{
+                                selectedClasses: @js($teacher->classes->pluck('id')->toArray()),
+                                get count() { return this.selectedClasses.length; },
+                                selectAll() { this.selectedClasses = @js($classes->pluck('id')->toArray()); },
+                                clearAll() { this.selectedClasses = []; }
+                            }">
+                                <div class="flex items-center justify-between mb-2">
+                                    <x-input-label for="classes" :value="__('Classes assignées')" />
+                                    <span class="text-xs text-indigo-600 font-semibold" x-show="count > 0" x-text="count + ' sélectionnée' + (count > 1 ? 's' : '')"></span>
+                                </div>
+                                <div class="flex gap-3 mb-3">
+                                    <button type="button" @click="selectAll()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Tout sélectionner</button>
+                                    <span class="text-slate-300">|</span>
+                                    <button type="button" @click="clearAll()" class="text-xs text-slate-500 hover:text-slate-700 font-medium">Tout effacer</button>
+                                </div>
+                                <div class="border border-slate-200 rounded-lg divide-y divide-slate-100 max-h-64 overflow-y-auto">
+                                    @forelse($classes as $classe)
+                                    <label class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 cursor-pointer transition-colors">
+                                        <input type="checkbox" 
+                                               name="classes[]" 
+                                               value="{{ $classe->id }}"
+                                               x-model="selectedClasses"
+                                               class="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
+                                        <span class="text-sm text-slate-700">{{ $classe->libelle }}</span>
+                                        <span class="text-xs text-slate-400 ml-auto">{{ $classe->level->libelle ?? '' }} - {{ $classe->specialization->libelle ?? '' }}</span>
+                                    </label>
+                                    @empty
+                                    <div class="px-4 py-4 text-sm text-slate-400 text-center">Aucune classe disponible</div>
+                                    @endforelse
+                                </div>
                                 <x-input-error :messages="$errors->get('classes')" class="mt-2" />
                             </div>
                         </div>

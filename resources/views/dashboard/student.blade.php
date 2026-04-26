@@ -115,6 +115,88 @@
                 </div>
             </div>
 
+            <!-- Grades by Subject Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 class="font-semibold text-slate-800">Mes Notes par Matière</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Matière</th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">F1</th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">F2</th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">F3</th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Final</th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Moyenne</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($mySubjects as $subject)
+                            @php
+                                $notes = $myNotes->where('evaluation.matiere_id', $subject['matiere']->id);
+                                $f1 = $notes->where('evaluation.type', 'f1')->first()?->note;
+                                $f2 = $notes->where('evaluation.type', 'f2')->first()?->note;
+                                $f3 = $notes->where('evaluation.type', 'f3')->first()?->note;
+                                $final = $notes->where('evaluation.type', 'final')->first()?->note;
+                                $notesForAvg = array_filter([$f1, $f2, $f3, $final]);
+                                $moyenne = count($notesForAvg) > 0 ? array_sum($notesForAvg) / count($notesForAvg) : null;
+                            @endphp
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-4 py-3 text-sm font-medium text-slate-700">
+                                    {{ $subject['matiere']->libelle }}
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    @if($f1 !== null)
+                                        <span class="px-2 py-1 rounded text-sm font-medium {{ $f1 >= 10 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
+                                            {{ number_format($f1, 2) }}
+                                        </span>
+                                    @else
+                                        <span class="text-slate-300">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    @if($f2 !== null)
+                                        <span class="px-2 py-1 rounded text-sm font-medium {{ $f2 >= 10 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
+                                            {{ number_format($f2, 2) }}
+                                        </span>
+                                    @else
+                                        <span class="text-slate-300">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    @if($f3 !== null)
+                                        <span class="px-2 py-1 rounded text-sm font-medium {{ $f3 >= 10 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
+                                            {{ number_format($f3, 2) }}
+                                        </span>
+                                    @else
+                                        <span class="text-slate-300">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    @if($final !== null)
+                                        <span class="px-2 py-1 rounded text-sm font-medium {{ $final >= 10 ? 'bg-indigo-100 text-indigo-700' : 'bg-red-100 text-red-700' }}">
+                                            {{ number_format($final, 2) }}
+                                        </span>
+                                    @else
+                                        <span class="text-slate-300">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-center text-sm font-bold {{ $moyenne !== null && $moyenne >= 10 ? 'text-emerald-600' : ($moyenne !== null ? 'text-red-500' : 'text-slate-400') }}">
+                                    {{ $moyenne !== null ? number_format($moyenne, 2) : '-' }}
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="px-4 py-6 text-center text-sm text-slate-400">Aucune matière assignée</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                     <h3 class="font-semibold text-slate-800">Mes Notes</h3>

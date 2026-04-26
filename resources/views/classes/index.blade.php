@@ -44,6 +44,8 @@
                                 <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Niveau</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Année</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Étudiants</th>
+                                <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Professeurs</th>
+                                <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Matières</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -56,7 +58,17 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{{ $classe->annee_scolaire }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                                        {{ $classe->etudiants->count() }}
+                                        {{ $classe->etudiants_count }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+                                        {{ $classe->teachers_count }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-700">
+                                        {{ $classe->matieres_count }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">

@@ -29,7 +29,7 @@ class ClasseController extends Controller
             $query->where('specialization_id', $request->specialization_id);
         }
 
-        $classes = $query->withCount('etudiants')->paginate(10);
+        $classes = $query->withCount(['etudiants', 'teachers', 'matieres'])->paginate(10);
         $specializations = Specialization::all();
 
         return view('classes.index', compact('classes', 'specializations'));

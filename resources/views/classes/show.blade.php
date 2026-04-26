@@ -24,7 +24,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Code</p>
                             <p class="text-base font-medium text-gray-900 dark:text-gray-100">{{ $classe->code }}</p>
@@ -40,6 +40,18 @@
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Année Scolaire</p>
                             <p class="text-base font-medium text-gray-900 dark:text-gray-100">{{ $classe->annee_scolaire }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Professeurs</p>
+                            <p class="text-base font-medium text-gray-900 dark:text-gray-100">
+                                {{ $classe->teachers->count() }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Matières</p>
+                            <p class="text-base font-medium text-gray-900 dark:text-gray-100">
+                                {{ $classe->matieres->count() }}
+                            </p>
                         </div>
                     </div>
                 </div>

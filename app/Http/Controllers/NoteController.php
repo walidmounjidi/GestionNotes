@@ -138,6 +138,10 @@ class NoteController extends Controller
             'notes.*.note' => 'required|numeric|min:0|max:20',
         ]);
 
+        if ($evaluation->isReadOnly()) {
+            return redirect()->back()->with('error', 'Cette évaluation est en lecture seule. Les notes ne peuvent pas être modifiées.');
+        }
+
         foreach ($request->notes as $noteData) {
             Note::updateOrCreate(
                 [

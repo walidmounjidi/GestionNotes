@@ -18,7 +18,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::middleware('role:admin')->group(function () {
+Route::middleware('role:admin')->group(function () {
         Route::get('/dashboard/admin', [\App\Http\Controllers\Dashboard\AdminController::class, 'index'])->name('dashboard.admin');
         Route::resource('utilisateurs', UtilisateurController::class);
         Route::resource('teacher', TeacherController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/classes/{classe}/matieres/{matiere}', [\App\Http\Controllers\Classe\ClasseController::class, 'removeMatiere'])->name('classes.removeMatiere');
         Route::post('/admin/assignSubject', [\App\Http\Controllers\Dashboard\AdminController::class, 'assignSubject'])->name('admin.assignSubject');
         Route::post('/admin/remove-subject', [\App\Http\Controllers\Dashboard\AdminController::class, 'removeSubject'])->name('admin.removeSubject');
+        Route::post('/admin/classe/{classe}/final-exam', [\App\Http\Controllers\Dashboard\AdminController::class, 'saveFinalExam'])->name('admin.classe.saveFinalExam');
     });
 
     Route::middleware('role:admin,teacher')->group(function () {
@@ -43,6 +44,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:teacher')->group(function () {
         Route::get('/dashboard/teacher', [\App\Http\Controllers\Dashboard\TeacherController::class, 'index'])->name('dashboard.teacher');
         Route::post('/teacher/update-grades', [\App\Http\Controllers\Dashboard\TeacherController::class, 'updateGrades'])->name('teacher.updateGrades');
+        Route::get('/teacher/classe/{classe}', [\App\Http\Controllers\Dashboard\TeacherController::class, 'classeDetail'])->name('teacher.classe.detail');
+        Route::post('/teacher/classe/{classe}/evaluation', [\App\Http\Controllers\Dashboard\TeacherController::class, 'saveEvaluation'])->name('teacher.classe.saveEvaluation');
+        Route::post('/teacher/classe/{classe}/notes', [\App\Http\Controllers\Dashboard\TeacherController::class, 'saveNotes'])->name('teacher.classe.saveNotes');
     });
 
     Route::middleware('role:student')->group(function () {

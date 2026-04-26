@@ -140,4 +140,29 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Assignation de matière supprimée.');
     }
+
+    public function saveFinalExam(Request $request, Classe $classe)
+    {
+        $request->validate([
+            'matiere_id' => 'required|exists:matieres,id',
+            'date_evaluation' => 'required|date',
+        ]);
+
+        Evaluation::updateOrCreate(
+            [
+                'classe_id' => $classe->id,
+                'matiere_id' => $request->matiere_id,
+                'type' => 'examen_final',
+            ],
+            [
+                'description' => 'Examen Final',
+                'date_evaluation' => $request->date_evaluation,
+                'note_max' => 20,
+                'coefficient' => 2,
+                'session' => 'principal',
+            ]
+        );
+
+        return redirect()->back()->with('success', 'Date de l\'examen final enregistrée.');
+    }
 }

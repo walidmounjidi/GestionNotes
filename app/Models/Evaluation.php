@@ -30,6 +30,47 @@ class Evaluation extends Model
         'coefficient' => 'decimal:2',
     ];
 
+    // Scopes
+    public function scopeF1($query)
+    {
+        return $query->where('type', 'f1');
+    }
+
+    public function scopeF2($query)
+    {
+        return $query->where('type', 'f2');
+    }
+
+    public function scopeF3($query)
+    {
+        return $query->where('type', 'f3');
+    }
+
+    public function scopeFinal($query)
+    {
+        return $query->where('type', 'final');
+    }
+
+    public function scopeDevoir($query)
+    {
+        return $query->where('type', 'devoir');
+    }
+
+    public function scopeExamen($query)
+    {
+        return $query->where('type', 'examen');
+    }
+
+    public function isEditable(): bool
+    {
+        return in_array($this->type, ['f1', 'f2', 'f3', 'devoir']);
+    }
+
+    public function isReadOnly(): bool
+    {
+        return in_array($this->type, ['final', 'examen']);
+    }
+
     // Relations
     public function matiere(): BelongsTo
     {

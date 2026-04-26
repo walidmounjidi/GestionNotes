@@ -20,24 +20,13 @@ class TeacherController extends Controller
 
         $stats = [
             'classes_count' => $assignedClasses->count(),
-            'matieres_count' => $assignedMatieres->count(),
+            'matieres_count' => $user->subjects()->count(),
             'students_count' => $assignedClasses->sum(function ($classe) {
                 return $classe->etudiants->count();
             }),
         ];
 
-        $studentsByClass = $assignedClasses->map(function ($classe) {
-            return [
-                'classe' => $classe,
-                'students' => $classe->etudiants->map(function ($etudiant) {
-                    return [
-                        'etudiant' => $etudiant,
-                        'notes' => $etudiant->notes()->with('evaluation.matiere')->get(),
-                        'moyenne' => $etudiant->notes->avg('note'),
-                    ];
-                }),
-            ];
-        });
+        $mySubjects = $user->subjects()->orderBy('libelle')->get();
 
         $availableEvaluations = Evaluation::with(['matiere', 'classe'])
             ->where(function ($query) use ($user, $assignedClasses) {
@@ -75,28 +64,15 @@ class TeacherController extends Controller
 
         $evaluationsCalendar = $this->getEvaluationsCalendar($user, $assignedClasses);
 
-        $colleagues = \App\Models\Utilisateur::whereHas('roles', function ($q) {
-            $q->where('code', 'teacher');
-        })
-        ->whereHas('classes', function ($q) use ($assignedClasses) {
-            $q->whereIn('classes.id', $assignedClasses->pluck('id'));
-        })
-        ->where('id', '!=', $user->id)
-        ->with(['classes' => function ($q) use ($assignedClasses) {
-            $q->whereIn('classes.id', $assignedClasses->pluck('id'));
-        }])
-        ->get();
-
         return view('dashboard.teacher', compact(
             'stats',
             'assignedClasses',
             'assignedMatieres',
-            'studentsByClass',
+            'mySubjects',
             'availableEvaluations',
             'upcomingEvaluations',
             'recentNotes',
-            'evaluationsCalendar',
-            'colleagues'
+            'evaluationsCalendar'
         ));
     }
 
@@ -149,5 +125,139 @@ class TeacherController extends Controller
         }
 
         return back()->with('success', 'Notes mises à jour avec succès.');
+    }
+
+    public function classeDetail(Classe $classe)
+    {
+        $user = Auth::user();
+
+        if (!$classe->teachers()->where('utilisateur_id', $user->id)->exists()) {
+            abort(403, 'Vous n\'êtes pas assigné à cette classe.');
+        }
+
+        $classe->load(['etudiants.utilisateur', 'matieres']);
+
+        $teacherSubjectIds = $user->subjects()->pluck('matiere_id');
+        $classMatiereIds = $classe->matieres()->pluck('matieres.id');
+        $relevantMatieres = \App\Models\Matiere::whereIn('id',
+            $teacherSubjectIds->intersect($classMatiereIds)
+        )->get();
+
+        if ($relevantMatieres->isEmpty()) {
+            $relevantMatieres = $user->subjects()->get();
+        }
+
+        $evalTypes = ['test_1', 'test_2', 'test_3', 'examen_final'];
+
+        $evaluationsByMatiere = [];
+        foreach ($relevantMatieres as $matiere) {
+            $evals = [];
+            foreach ($evalTypes as $type) {
+                $evals[$type] = Evaluation::where('classe_id', $classe->id)
+                    ->where('matiere_id', $matiere->id)
+                    ->where('type', $type)
+                    ->first();
+            }
+            $evaluationsByMatiere[$matiere->id] = [
+                'matiere' => $matiere,
+                'evaluations' => $evals,
+            ];
+        }
+
+        $allEvalIds = collect($evaluationsByMatiere)
+            ->flatMap(fn($m) => collect($m['evaluations'])->filter()->pluck('id'))
+            ->values();
+
+        $notesByEtudiant = Note::whereIn('evaluation_id', $allEvalIds)
+            ->get()
+            ->groupBy('etudiant_id');
+
+        $etudiants = $classe->etudiants->sortBy(fn($e) => $e->utilisateur->nom ?? '');
+
+        return view('dashboard.teacher-classe', compact(
+            'classe',
+            'etudiants',
+            'evaluationsByMatiere',
+            'notesByEtudiant',
+            'evalTypes'
+        ));
+    }
+
+    public function saveEvaluation(Request $request, Classe $classe)
+    {
+        $user = Auth::user();
+
+        if (!$classe->teachers()->where('utilisateur_id', $user->id)->exists()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'matiere_id' => 'required|exists:matieres,id',
+            'type' => 'required|in:test_1,test_2,test_3',
+            'date_evaluation' => 'required|date',
+        ]);
+
+        Evaluation::updateOrCreate(
+            [
+                'classe_id' => $classe->id,
+                'matiere_id' => $request->matiere_id,
+                'type' => $request->type,
+            ],
+            [
+                'description' => match($request->type) {
+                    'test_1' => 'Test 1',
+                    'test_2' => 'Test 2',
+                    'test_3' => 'Test 3',
+                },
+                'date_evaluation' => $request->date_evaluation,
+                'note_max' => 20,
+                'coefficient' => 1,
+                'session' => 'principal',
+            ]
+        );
+
+        return redirect()
+            ->route('teacher.classe.detail', $classe->id)
+            ->with('success', 'Date de l\'évaluation enregistrée.');
+    }
+
+    public function saveNotes(Request $request, Classe $classe)
+    {
+        $user = Auth::user();
+
+        if (!$classe->teachers()->where('utilisateur_id', $user->id)->exists()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'evaluation_id' => 'required|exists:evaluations,id',
+            'notes' => 'required|array',
+            'notes.*.etudiant_id' => 'required|exists:etudiants,id',
+            'notes.*.note' => 'nullable|numeric|min:0|max:20',
+        ]);
+
+        $evaluation = Evaluation::where('id', $request->evaluation_id)
+            ->where('classe_id', $classe->id)
+            ->firstOrFail();
+
+        foreach ($request->notes as $noteData) {
+            if ($noteData['note'] === null || $noteData['note'] === '') {
+                continue;
+            }
+            Note::updateOrCreate(
+                [
+                    'etudiant_id' => $noteData['etudiant_id'],
+                    'evaluation_id' => $evaluation->id,
+                ],
+                [
+                    'note' => $noteData['note'],
+                    'utilisateur_saisie_id' => Auth::id(),
+                ]
+            );
+        }
+
+        return redirect()
+            ->route('teacher.classe.detail', $classe->id)
+            ->with('success', 'Notes enregistrées avec succès.');
     }
 }
