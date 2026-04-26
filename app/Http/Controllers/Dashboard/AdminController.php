@@ -10,6 +10,7 @@ use App\Models\Matiere;
 use App\Models\Note;
 use App\Models\Evaluation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -160,6 +161,7 @@ class AdminController extends Controller
                 'note_max' => 20,
                 'coefficient' => 2,
                 'session' => 'principal',
+                'created_by' => Auth::id(),
             ]
         );
 

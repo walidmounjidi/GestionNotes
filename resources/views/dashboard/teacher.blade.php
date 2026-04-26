@@ -12,6 +12,14 @@
     </x-slot>
 
     <div class="py-8">
+        @php
+        $typeLabels = [
+            'test_1' => 'Test 1',
+            'test_2' => 'Test 2',
+            'test_3' => 'Test 3',
+            'examen_final' => 'Examen Final',
+        ];
+        @endphp
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl p-6 shadow-lg shadow-indigo-500/25 text-white">
@@ -124,7 +132,7 @@
                     <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
                         <div>
                             <span class="font-medium text-slate-700">{{ $eval->matiere->libelle ?? 'N/A' }}</span>
-                            <span class="text-sm text-slate-500 block">{{ $eval->classe->libelle ?? 'N/A' }}</span>
+                            <span class="text-sm text-slate-500 block">{{ $typeLabels[$eval->type] ?? $eval->description }}</span>
                         </div>
                         <span class="text-sm text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
                             {{ \Carbon\Carbon::parse($eval->date_evaluation)->format('d/m/Y') }}
@@ -148,8 +156,8 @@
                                         <div class="flex items-center justify-between py-2 bg-slate-50 rounded-lg px-3 mb-1">
                                             <span class="text-sm text-slate-600">{{ $eval->matiere->libelle ?? 'N/A' }}</span>
                                             <span class="text-xs text-slate-500">{{ $eval->classe->libelle ?? 'N/A' }}</span>
-                                            <span class="px-2 py-0.5 text-xs rounded-full {{ $eval->type === 'examen' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
-                                                {{ ucfirst($eval->type) }}
+                                            <span class="px-2 py-0.5 text-xs rounded-full {{ $eval->type === 'examen_final' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
+                                                {{ $typeLabels[$eval->type] ?? $eval->description }}
                                             </span>
                                         </div>
                                     @endforeach

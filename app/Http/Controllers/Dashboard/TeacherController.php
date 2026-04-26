@@ -28,35 +28,22 @@ class TeacherController extends Controller
 
         $mySubjects = $user->subjects()->orderBy('libelle')->get();
 
-        $availableEvaluations = Evaluation::with(['matiere', 'classe'])
-            ->where(function ($query) use ($user, $assignedClasses) {
-                $query->whereHas('classe.teachers', function ($q) use ($user) {
-                    $q->where('utilisateur_id', $user->id);
-                })
-                    ->orWhereIn('classe_id', $assignedClasses->pluck('id'));
-            })
+        $availableEvaluations = \App\Models\Evaluation::with(['matiere', 'classe'])
+            ->where('created_by', $user->id)
             ->where('date_evaluation', '<=', now())
             ->orderBy('date_evaluation', 'desc')
             ->get();
 
-        $upcomingEvaluations = Evaluation::with(['matiere', 'classe'])
-            ->where(function ($query) use ($user, $assignedClasses) {
-                $query->whereHas('classe.teachers', function ($q) use ($user) {
-                    $q->where('utilisateur_id', $user->id);
-                })
-                    ->orWhereIn('classe_id', $assignedClasses->pluck('id'));
-            })
+        $upcomingEvaluations = \App\Models\Evaluation::with(['matiere', 'classe'])
+            ->where('created_by', $user->id)
             ->where('date_evaluation', '>', now())
             ->orderBy('date_evaluation', 'asc')
             ->take(5)
             ->get();
 
-        $recentNotes = Note::whereHas('evaluation', function ($query) use ($user, $assignedClasses) {
-            $query->whereHas('classe.teachers', function ($q) use ($user) {
-                $q->where('utilisateur_id', $user->id);
-            })
-                ->orWhereIn('classe_id', $assignedClasses->pluck('id'));
-        })
+        $recentNotes = \App\Models\Note::whereHas('evaluation',
+            fn($q) => $q->where('created_by', $user->id)
+        )
             ->with(['evaluation.matiere', 'evaluation.classe', 'etudiant.utilisateur'])
             ->orderBy('created_at', 'desc')
             ->take(5)
@@ -81,13 +68,8 @@ class TeacherController extends Controller
         $startDate = now()->startOfMonth()->subWeek();
         $endDate = now()->endOfMonth()->addWeek();
 
-        return Evaluation::with(['matiere', 'classe'])
-            ->where(function ($query) use ($user, $assignedClasses) {
-                $query->whereHas('classe.teachers', function ($q) use ($user) {
-                    $q->where('utilisateur_id', $user->id);
-                })
-                    ->orWhereIn('classe_id', $assignedClasses->pluck('id'));
-            })
+        return \App\Models\Evaluation::with(['matiere', 'classe'])
+            ->where('created_by', $user->id)
             ->whereBetween('date_evaluation', [$startDate, $endDate])
             ->orderBy('date_evaluation')
             ->get()
@@ -213,6 +195,7 @@ class TeacherController extends Controller
                 'note_max' => 20,
                 'coefficient' => 1,
                 'session' => 'principal',
+                'created_by' => Auth::id(),
             ]
         );
 

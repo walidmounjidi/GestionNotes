@@ -22,6 +22,7 @@ class Evaluation extends Model
         'note_max',
         'coefficient',
         'session',
+        'created_by',
     ];
 
     protected $casts = [
@@ -80,6 +81,11 @@ class Evaluation extends Model
     public function classe(): BelongsTo
     {
         return $this->belongsTo(Classe::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Utilisateur::class, 'created_by');
     }
 
     public function notes(): HasMany
